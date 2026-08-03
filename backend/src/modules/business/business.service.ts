@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { BusinessRepository } from "./business.repository";
+import { slugify } from "../../common/utils/slug";
 import { UpdateBusinessDto } from "./dto/update-business.dto";
 import { UpdateBusinessSettingsDto } from "./dto/update-business-settings.dto";
 
@@ -24,7 +25,15 @@ export class BusinessService {
       throw new NotFoundException("Negocio no encontrado.");
     }
 
-    return this.businessRepository.update(businessId, dto);
+    const data: UpdateBusinessDto = {
+      name: dto.name,
+      slug: dto.slug ? slugify(dto.slug) : undefined,
+      phone: dto.phone,
+      email: dto.email,
+      address: dto.address
+    };
+
+    return this.businessRepository.update(businessId, data);
   }
 
   async getSettings(businessId: string) {

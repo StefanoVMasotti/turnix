@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma/prisma.service";
+import { dateToDate, timeToDate } from "../../common/utils/time";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 
@@ -40,29 +41,41 @@ export class AppointmentsRepository {
         clientId: data.clientId,
         employeeId: data.employeeId,
         serviceId: data.serviceId,
-        appointmentDate: new Date(data.appointmentDate),
-        startTime: new Date(`1970-01-01T${data.startTime}+03:00`),
-        endTime: new Date(`1970-01-01T${data.endTime}+03:00`),
-        bookingSource: (data.bookingSource as "web" | "whatsapp" | "phone" | "walk_in") ?? "web",
+        appointmentDate: dateToDate(data.appointmentDate),
+        startTime: timeToDate(data.startTime),
+        endTime: timeToDate(data.endTime),
+        bookingSource: (data.bookingSource ?? "web") as "web" | "whatsapp" | "phone" | "walk_in",
         notes: data.notes
       }
     });
   }
 
   async update(id: string, data: UpdateAppointmentDto) {
-    const updateData: Record<string, unknown> = { ...data };
+    const updateData: Record<string, unknown> = {};
 
-    if (data.status) {
-      updateData.status = data.status as "scheduled" | "completed" | "cancelled" | "no_show";
+    if (data.status !== undefined) {
+      updateData.status = data.status;
     }
     if (data.appointmentDate) {
-      updateData.appointmentDate = new Date(data.appointmentDate);
+      updateData.appointmentDate = dateToDate(data.appointmentDate);
     }
     if (data.startTime) {
-      updateData.startTime = new Date(`1970-01-01T${data.startTime}+03:00`);
+      updateData.startTime = timeToDate(data.startTime);
     }
     if (data.endTime) {
-      updateData.endTime = new Date(`1970-01-01T${data.endTime}+03:00`);
+      updateData.endTime = timeToDate(data.endTime);
+    }
+    if (data.clientId !== undefined) {
+      updateData.clientId = data.clientId;
+    }
+    if (data.employeeId !== undefined) {
+      updateData.employeeId = data.employeeId;
+    }
+    if (data.serviceId !== undefined) {
+      updateData.serviceId = data.serviceId;
+    }
+    if (data.notes !== undefined) {
+      updateData.notes = data.notes;
     }
 
     return this.prisma.appointment.update({

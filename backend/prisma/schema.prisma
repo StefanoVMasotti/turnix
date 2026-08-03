@@ -30,6 +30,7 @@ enum BookingSource {
 model Business {
   id               String            @id @default(uuid()) @db.Uuid
   name             String            @db.VarChar(100)
+  slug             String            @unique @db.VarChar(50)
   phone            String?           @db.VarChar(30)
   email            String?           @db.VarChar(255)
   address          String?           @db.VarChar(255)

@@ -7,6 +7,9 @@ export class BusinessResponse {
   @ApiProperty({ example: "Turnix Demo" })
   name!: string;
 
+  @ApiProperty({ example: "turnix-demo" })
+  slug!: string;
+
   @ApiProperty({ example: "+54 11 5555-5555", nullable: true })
   phone!: string | null;
 

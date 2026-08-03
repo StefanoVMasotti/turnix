@@ -8,6 +8,12 @@ export class UpdateBusinessDto {
   @MaxLength(100)
   name?: string;
 
+  @ApiPropertyOptional({ example: "turnix-barberia", maxLength: 50 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  slug?: string;
+
   @ApiPropertyOptional({ example: "+54 11 5555-5555", maxLength: 30 })
   @IsOptional()
   @IsString()
