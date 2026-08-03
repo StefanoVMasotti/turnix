@@ -2,7 +2,7 @@ export interface EmployeeService {
   id: string;
   employeeId: string;
   serviceId: string;
-  price: string;
+  price: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;
