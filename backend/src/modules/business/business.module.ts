@@ -1,0 +1,10 @@
+import { Module } from "@nestjs/common";
+import { BusinessController } from "./business.controller";
+import { BusinessRepository } from "./business.repository";
+import { BusinessService } from "./business.service";
+
+@Module({
+  controllers: [BusinessController],
+  providers: [BusinessService, BusinessRepository]
+})
+export class BusinessModule {}

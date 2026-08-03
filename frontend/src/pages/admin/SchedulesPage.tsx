@@ -1,0 +1,141 @@
+import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { useSchedules, useCreateSchedule, useDeleteSchedule } from "../../hooks/useSchedules";
+import { useEmployees } from "../../hooks/useEmployees";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Select } from "../../components/ui/Select";
+import { Modal } from "../../components/ui/Modal";
+
+const days = [
+  { value: "0", label: "Domingo" },
+  { value: "1", label: "Lunes" },
+  { value: "2", label: "Martes" },
+  { value: "3", label: "Miércoles" },
+  { value: "4", label: "Jueves" },
+  { value: "5", label: "Viernes" },
+  { value: "6", label: "Sábado" }
+];
+
+export function SchedulesPage() {
+  const { data: schedules, isLoading } = useSchedules();
+  const { data: employees } = useEmployees();
+  const createSchedule = useCreateSchedule();
+  const deleteSchedule = useDeleteSchedule();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    employeeId: "",
+    dayOfWeek: "1",
+    startTime: "09:00",
+    endTime: "17:00"
+  });
+
+  function getEmployeeName(id: string) {
+    const emp = employees?.find((e) => e.id === id);
+    return emp ? `${emp.firstName} ${emp.lastName}` : id;
+  }
+
+  function handleSubmit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    setError("");
+    createSchedule.mutate({
+      ...formData,
+      dayOfWeek: Number(formData.dayOfWeek)
+    }, {
+      onSuccess: () => { setIsModalOpen(false); },
+      onError: () => { setError("Error al crear el horario"); }
+    });
+  }
+
+  function handleDelete(id: string) {
+    if (confirm("¿Eliminar este horario?")) {
+      deleteSchedule.mutate(id);
+    }
+  }
+
+  if (isLoading) return <p className="text-slate-400">Cargando horarios...</p>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Horarios</h1>
+        <Button onClick={() => { setIsModalOpen(true); }}>
+          <Plus size={16} className="mr-2" />
+          Nuevo Horario
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {schedules?.map((schedule) => (
+          <Card key={schedule.id} className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-slate-100">
+                {getEmployeeName(schedule.employeeId)}
+              </p>
+              <p className="text-sm text-slate-400">
+                {days.find((d) => d.value === String(schedule.dayOfWeek))?.label} · {schedule.startTime} - {schedule.endTime}
+              </p>
+            </div>
+            <Button variant="danger" size="sm" onClick={() => { handleDelete(schedule.id); }}>
+              <Trash2 size={14} />
+            </Button>
+          </Card>
+        ))}
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setError(""); }}
+        title="Nuevo Horario"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Select
+            label="Empleado"
+            value={formData.employeeId}
+            onChange={(e) => { setFormData({ ...formData, employeeId: e.target.value }); }}
+            options={employees?.map((e) => ({ value: e.id, label: `${e.firstName} ${e.lastName}` })) ?? []}
+            placeholder="Seleccionar empleado"
+            required
+          />
+          <Select
+            label="Día"
+            value={formData.dayOfWeek}
+            onChange={(e) => { setFormData({ ...formData, dayOfWeek: e.target.value }); }}
+            options={days}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-400">Hora inicio</label>
+              <input
+                type="time"
+                value={formData.startTime}
+                onChange={(e) => { setFormData({ ...formData, startTime: e.target.value }); }}
+                className="bg-surface border border-border rounded-[10px] px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-400">Hora fin</label>
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={(e) => { setFormData({ ...formData, endTime: e.target.value }); }}
+                className="bg-surface border border-border rounded-[10px] px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          {error && <p className="text-sm text-error">{error}</p>}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={createSchedule.isPending}>
+              Crear
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}

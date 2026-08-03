@@ -1,0 +1,21 @@
+import type { ReactNode } from "react";
+
+interface BadgeProps {
+  variant?: "success" | "warning" | "danger" | "info";
+  children: ReactNode;
+}
+
+export function Badge({ variant = "info", children }: BadgeProps) {
+  const variants = {
+    success: "bg-success/20 text-success",
+    warning: "bg-warning/20 text-warning",
+    danger: "bg-error/20 text-error",
+    info: "bg-primary/20 text-primary"
+  };
+
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${variants[variant]}`}>
+      {children}
+    </span>
+  );
+}

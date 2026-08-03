@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+}
+
+enum AppointmentStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
+enum BookingSource {
+  web
+  whatsapp
+  phone
+  walk_in
+}
+
+model Business {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String            @db.VarChar(100)
+  phone            String?           @db.VarChar(30)
+  email            String?           @db.VarChar(255)
+  address          String?           @db.VarChar(255)
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  settings         BusinessSettings?
+  users            User[]
+  employees        Employee[]
+  services         Service[]
+  clients          Client[]
+  appointments     Appointment[]
+
+  @@map("businesses")
+}
+
+model BusinessSettings {
+  id                  String   @id @default(uuid()) @db.Uuid
+  businessId          String   @unique @map("business_id") @db.Uuid
+  timezone            String   @default("America/Buenos_Aires") @db.VarChar(100)
+  currency            String   @default("ARS") @db.Char(3)
+  appointmentInterval Int      @default(30) @map("appointment_interval")
+  maxBookingDays      Int      @default(30) @map("max_booking_days")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  business            Business @relation(fields: [businessId], references: [id])
+
+  @@map("business_settings")
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  authUserId String   @unique @map("auth_user_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(255)
+  role       UserRole
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  business   Business @relation(fields: [businessId], references: [id])
+
+  @@map("users")
+}
+
+model Employee {
+  id                String             @id @default(uuid()) @db.Uuid
+  businessId        String             @map("business_id") @db.Uuid
+  firstName         String             @map("first_name") @db.VarChar(100)
+  lastName          String             @map("last_name") @db.VarChar(100)
+  phone             String?            @db.VarChar(30)
+  email             String?            @db.VarChar(255)
+  active            Boolean            @default(true)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  business          Business           @relation(fields: [businessId], references: [id])
+  employeeServices  EmployeeService[]
+  schedules         EmployeeSchedule[]
+  timeOff           EmployeeTimeOff[]
+  blocks            EmployeeBlock[]
+  appointments      Appointment[]
+
+  @@index([businessId])
+  @@map("employees")
+}
+
+model Service {
+  id               String            @id @default(uuid()) @db.Uuid
+  businessId       String            @map("business_id") @db.Uuid
+  name             String            @db.VarChar(100)
+  description      String?
+  durationMinutes  Int               @map("duration_minutes")
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  business         Business          @relation(fields: [businessId], references: [id])
+  employeeServices EmployeeService[]
+  appointments     Appointment[]
+
+  @@index([businessId])
+  @@map("services")
+}
+
+model EmployeeService {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  serviceId  String   @map("service_id") @db.Uuid
+  price      Decimal  @db.Decimal(10, 2)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  service    Service  @relation(fields: [serviceId], references: [id])
+
+  @@unique([employeeId, serviceId])
+  @@map("employee_services")
+}
+
+model EmployeeSchedule {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  dayOfWeek  Int      @map("day_of_week")
+  startTime  DateTime @map("start_time") @db.Time(0)
+  endTime    DateTime @map("end_time") @db.Time(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("employee_schedules")
+}
+
+model EmployeeTimeOff {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  startDate  DateTime @map("start_date") @db.Date
+  endDate    DateTime @map("end_date") @db.Date
+  reason     String?  @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("employee_time_off")
+}
+
+model EmployeeBlock {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  blockDate  DateTime @map("block_date") @db.Date
+  startTime  DateTime @map("start_time") @db.Time(0)
+  endTime    DateTime @map("end_time") @db.Time(0)
+  reason     String?  @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("employee_blocks")
+}
+
+model Client {
+  id           String        @id @default(uuid()) @db.Uuid
+  businessId   String        @map("business_id") @db.Uuid
+  firstName    String        @map("first_name") @db.VarChar(100)
+  lastName     String        @map("last_name") @db.VarChar(100)
+  phone        String        @db.VarChar(30)
+  email        String?       @db.VarChar(255)
+  notes        String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  business     Business      @relation(fields: [businessId], references: [id])
+  appointments Appointment[]
+
+  @@index([phone])
+  @@map("clients")
+}
+
+model Appointment {
+  id              String            @id @default(uuid()) @db.Uuid
+  businessId      String            @map("business_id") @db.Uuid
+  clientId        String            @map("client_id") @db.Uuid
+  employeeId      String            @map("employee_id") @db.Uuid
+  serviceId       String            @map("service_id") @db.Uuid
+  appointmentDate DateTime          @map("appointment_date") @db.Date
+  startTime       DateTime          @map("start_time") @db.Time(0)
+  endTime         DateTime          @map("end_time") @db.Time(0)
+  status          AppointmentStatus @default(scheduled)
+  bookingSource   BookingSource     @default(web) @map("booking_source")
+  notes           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  business        Business          @relation(fields: [businessId], references: [id])
+  client          Client            @relation(fields: [clientId], references: [id])
+  employee        Employee          @relation(fields: [employeeId], references: [id])
+  service         Service           @relation(fields: [serviceId], references: [id])
+
+  @@index([employeeId, appointmentDate])
+  @@map("appointments")
+}

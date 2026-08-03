@@ -1,0 +1,23 @@
+{
+  "name": "turnix",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev:backend": "npm run start:dev --workspace @turnix/backend",
+    "dev:frontend": "npm run dev --workspace @turnix/frontend",
+    "format": "npm run format --workspaces",
+    "lint": "npm run lint --workspaces",
+    "prisma:generate": "npm run prisma:generate --workspace @turnix/backend",
+    "prisma:migrate": "npm run prisma:migrate --workspace @turnix/backend",
+    "prisma:seed": "npm run prisma:seed --workspace @turnix/backend"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  }
+}

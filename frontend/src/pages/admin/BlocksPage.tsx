@@ -1,0 +1,141 @@
+import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { useBlocks, useCreateBlock, useDeleteBlock } from "../../hooks/useBlocks";
+import { useEmployees } from "../../hooks/useEmployees";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
+import { Modal } from "../../components/ui/Modal";
+
+export function BlocksPage() {
+  const { data: blocks, isLoading } = useBlocks();
+  const { data: employees } = useEmployees();
+  const createBlock = useCreateBlock();
+  const deleteBlock = useDeleteBlock();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    employeeId: "",
+    blockDate: "",
+    startTime: "09:00",
+    endTime: "17:00",
+    reason: ""
+  });
+
+  function getEmployeeName(id: string) {
+    const emp = employees?.find((e) => e.id === id);
+    return emp ? `${emp.firstName} ${emp.lastName}` : id;
+  }
+
+  function handleSubmit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    setError("");
+    createBlock.mutate({
+      ...formData,
+      startTime: formData.startTime + ":00",
+      endTime: formData.endTime + ":00"
+    }, {
+      onSuccess: () => { setIsModalOpen(false); },
+      onError: () => { setError("Error al crear el bloqueo"); }
+    });
+  }
+
+  function handleDelete(id: string) {
+    if (confirm("¿Eliminar este bloqueo?")) {
+      deleteBlock.mutate(id);
+    }
+  }
+
+  if (isLoading) return <p className="text-slate-400">Cargando bloqueos...</p>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Bloqueos</h1>
+        <Button onClick={() => { setIsModalOpen(true); }}>
+          <Plus size={16} className="mr-2" />
+          Nuevo Bloqueo
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {blocks?.map((block) => (
+          <Card key={block.id} className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-slate-100">
+                {getEmployeeName(block.employeeId)}
+              </p>
+              <p className="text-sm text-slate-400">
+                {block.blockDate} · {block.startTime} - {block.endTime}
+                {block.reason ? ` · ${block.reason}` : ""}
+              </p>
+            </div>
+            <Button variant="danger" size="sm" onClick={() => { handleDelete(block.id); }}>
+              <Trash2 size={14} />
+            </Button>
+          </Card>
+        ))}
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setError(""); }}
+        title="Nuevo Bloqueo"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Select
+            label="Empleado"
+            value={formData.employeeId}
+            onChange={(e) => { setFormData({ ...formData, employeeId: e.target.value }); }}
+            options={employees?.map((e) => ({ value: e.id, label: `${e.firstName} ${e.lastName}` })) ?? []}
+            placeholder="Seleccionar empleado"
+            required
+          />
+          <Input
+            label="Fecha"
+            type="date"
+            value={formData.blockDate}
+            onChange={(e) => { setFormData({ ...formData, blockDate: e.target.value }); }}
+            required
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-400">Hora inicio</label>
+              <input
+                type="time"
+                value={formData.startTime}
+                onChange={(e) => { setFormData({ ...formData, startTime: e.target.value }); }}
+                className="bg-surface border border-border rounded-[10px] px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-400">Hora fin</label>
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={(e) => { setFormData({ ...formData, endTime: e.target.value }); }}
+                className="bg-surface border border-border rounded-[10px] px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          <Input
+            label="Razón"
+            value={formData.reason}
+            onChange={(e) => { setFormData({ ...formData, reason: e.target.value }); }}
+          />
+          {error && <p className="text-sm text-error">{error}</p>}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={createBlock.isPending}>
+              Crear
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
