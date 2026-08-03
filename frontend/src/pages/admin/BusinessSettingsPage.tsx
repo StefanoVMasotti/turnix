@@ -12,6 +12,7 @@ export function BusinessSettingsPage() {
 
   const [businessForm, setBusinessForm] = useState({
     name: "",
+    slug: "",
     phone: "",
     email: "",
     address: ""
@@ -30,6 +31,7 @@ export function BusinessSettingsPage() {
     if (business) {
       setBusinessForm({
         name: business.name,
+        slug: business.slug,
         phone: business.phone ?? "",
         email: business.email ?? "",
         address: business.address ?? ""
@@ -87,6 +89,11 @@ export function BusinessSettingsPage() {
               label="Teléfono"
               value={businessForm.phone}
               onChange={(e) => { setBusinessForm({ ...businessForm, phone: e.target.value }); }}
+            />
+            <Input
+              label="Slug (URL pública)"
+              value={businessForm.slug}
+              onChange={(e) => { setBusinessForm({ ...businessForm, slug: e.target.value }); }}
             />
             <Input
               label="Email"

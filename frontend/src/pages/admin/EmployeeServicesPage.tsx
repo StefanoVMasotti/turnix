@@ -68,7 +68,7 @@ export function EmployeeServicesPage() {
                 <div className="text-sm text-slate-400 mt-1">
                   Servicio: <span className="text-slate-200">{a.service?.name ?? "—"}</span>
                   <span className="text-xs text-slate-500 ml-2">
-                    ({a.service?.durationMinutes ?? "?"} min{a.price ? ` · $${a.price}` : ""})
+                    ({a.service?.durationMinutes ?? "?"} min{a.price ? ` · $${String(a.price)}` : ""})
                   </span>
                 </div>
               </div>

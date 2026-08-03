@@ -9,6 +9,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
+import { formatDate, formatTime, toLocalDateStr } from "../../utils/date";
 import type { Appointment } from "../../types/appointment";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -24,27 +25,6 @@ const STATUS_VARIANTS: Record<string, "success" | "danger" | "warning" | "info">
   cancelled: "danger",
   no_show: "warning"
 };
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const year = String(d.getUTCFullYear());
-  return `${day}/${month}/${year}`;
-}
-
-function formatTime(timeStr: string) {
-  const t = timeStr.split("T")[1];
-  return t ? t.substring(0, 5) : timeStr;
-}
-
-function toLocalDateStr(isoStr: string) {
-  const d = new Date(isoStr);
-  const y = String(d.getUTCFullYear());
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 export function AppointmentsPage() {
   const { data: appointments, isLoading } = useAppointments();
