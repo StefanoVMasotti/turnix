@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { EmployeeServicesRepository } from "./employee-services.repository";
 import { CreateEmployeeServiceDto } from "./dto/create-employee-service.dto";
+import { UpdateEmployeeServiceDto } from "./dto/update-employee-service.dto";
 
 @Injectable()
 export class EmployeeServicesService {
@@ -21,10 +22,33 @@ export class EmployeeServicesService {
         throw new ConflictException("Este empleado ya tiene asignado este servicio.");
       }
 
-      return this.employeeServicesRepository.create(dto);
+      return this.employeeServicesRepository.update(existing.id, {
+        price: dto.price,
+        active: true
+      });
     }
 
     return this.employeeServicesRepository.create(dto);
+  }
+
+  async update(id: string, dto: UpdateEmployeeServiceDto) {
+    const employeeService = await this.employeeServicesRepository.findById(id);
+
+    if (!employeeService) {
+      throw new NotFoundException("Relación empleado-servicio no encontrada.");
+    }
+
+    return this.employeeServicesRepository.update(id, { price: dto.price });
+  }
+
+  async toggleActive(id: string) {
+    const employeeService = await this.employeeServicesRepository.findById(id);
+
+    if (!employeeService) {
+      throw new NotFoundException("Relación empleado-servicio no encontrada.");
+    }
+
+    return this.employeeServicesRepository.toggleActive(id);
   }
 
   async remove(id: string) {

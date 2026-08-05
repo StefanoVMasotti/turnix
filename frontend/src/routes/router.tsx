@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { App } from "../App";
 import { AdminLayout } from "../layouts/AdminLayout";
 import { PublicLayout } from "../layouts/PublicLayout";
@@ -12,7 +12,7 @@ import { AppointmentsPage } from "../pages/admin/AppointmentsPage";
 import { EmployeeServicesPage } from "../pages/admin/EmployeeServicesPage";
 import { BlocksPage } from "../pages/admin/BlocksPage";
 import { BusinessSettingsPage } from "../pages/admin/BusinessSettingsPage";
-import { BookingHomePage } from "../pages/public/BookingHomePage";
+import { PublicBookingPage } from "../pages/public/PublicBookingPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +24,11 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <BookingHomePage />
+            element: <Navigate to="/turnix-demo" replace />
+          },
+          {
+            path: ":slug",
+            element: <PublicBookingPage />
           }
         ]
       },

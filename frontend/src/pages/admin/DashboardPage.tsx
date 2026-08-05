@@ -9,8 +9,7 @@ import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 
 function formatTime(timeStr: string) {
-  const t = timeStr.split("T")[1];
-  return t ? t.substring(0, 5) : timeStr;
+  return timeStr.substring(0, 5);
 }
 
 function formatDate(dateStr: string) {

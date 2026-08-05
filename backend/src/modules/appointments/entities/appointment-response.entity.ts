@@ -20,10 +20,10 @@ export class AppointmentResponse {
   appointmentDate!: Date;
 
   @ApiProperty({ example: "09:00:00" })
-  startTime!: Date;
+  startTime!: string;
 
   @ApiProperty({ example: "09:30:00" })
-  endTime!: Date;
+  endTime!: string;
 
   @ApiProperty({ example: "scheduled", enum: ["scheduled", "completed", "cancelled", "no_show"] })
   status!: string;

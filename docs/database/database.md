@@ -36,12 +36,21 @@ Representa cada negocio registrado en la plataforma.
 
 - id (UUID)
 - name
+- slug
 - phone
 - email
 - address
 - active
 - created_at
 - updated_at
+
+## slug
+
+Identificador único, legible y SEO-friendly que se usa en la URL pública del negocio (`/:slug`).
+
+Se genera automáticamente a partir del nombre y puede editarse desde el panel administrativo.
+
+Debe ser único por negocio.
 
 ## Relaciones
 
@@ -153,10 +162,11 @@ Servicios ofrecidos por un negocio.
 - name
 - description
 - duration_minutes
-- price
 - active
 - created_at
 - updated_at
+
+El precio no pertenece al servicio: se define por profesional en `Employee Services`.
 
 ---
 
@@ -169,9 +179,16 @@ Tabla intermedia que representa la relación muchos a muchos entre empleados y s
 - id
 - employee_id
 - service_id
+- price
 - active
 - created_at
 - updated_at
+
+## price
+
+Precio del servicio para ese profesional específico.
+
+Un mismo servicio puede tener precios distintos según el profesional.
 
 ---
 
@@ -309,6 +326,30 @@ Representa cada turno reservado.
 
 ---
 
+# Horarios y timezone
+
+## Estrategia (v1)
+
+Los horarios se almacenan como **hora local del negocio** (wall-clock naive), sin conversión de zona horaria:
+
+- Las columnas `TIME` guardan el horario de la franja tal cual lo ve el negocio.
+- Las columnas `DATE` guardan el día calendario del negocio.
+- El campo `BusinessSettings.timezone` es la fuente de verdad del huso del negocio.
+
+El backend recibe y devuelve los horarios como strings (`HH:mm:ss`) y construye los `Date` con el formato `1970-01-01T{HH:mm:ss}Z` para preservar el wall-clock. El frontend formatea la porción de hora con helpers UTC (`getUTCHours`, etc.).
+
+Para calcular el "hoy" del negocio y filtrar horarios pasados se usa `Intl.DateTimeFormat` con `timezone`, de modo que la lógica no depende de la zona horaria del servidor.
+
+## Migración futura a UTC
+
+El diseño deja preparada una futura migración:
+
+- `BusinessSettings.timezone` ya es la fuente de verdad.
+- Toda la manipulación de fechas está centralizada en utilidades del backend (`src/common/utils/time.ts`) y del frontend (`src/utils/date.ts`).
+- Una versión futura podrá migrar a almacenamiento UTC y convertir en el frontend sin tocar la lógica de negocio.
+
+---
+
 # Reglas del Negocio
 
 ## Disponibilidad
@@ -322,7 +363,15 @@ Para calcular disponibilidad el sistema consulta:
 1. Horario habitual del empleado.
 2. Ausencias.
 3. Bloqueos.
-4. Turnos existentes.
+4. Turnos existentes (estado `scheduled`).
+5. Que el profesional ofrezca el servicio activo (`Employee Services`).
+
+Se genera una grilla de candidatos desde la apertura del empleado avanzando en `BusinessSettings.appointment_interval`, cada turno con duración igual a la del servicio. Se descartan los candidatos que:
+
+- Superen el cierre del horario habitual.
+- Se solapen con bloqueos o turnos existentes.
+- Sean pasados (si la fecha es hoy, se usa `BusinessSettings.timezone`).
+- Queden fuera de la ventana de reserva (`BusinessSettings.max_booking_days`).
 
 ---
 

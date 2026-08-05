@@ -28,6 +28,7 @@ async function main() {
     where: { id: businessId },
     update: {
       name: "Turnix Demo",
+      slug: "turnix-demo",
       phone: "+54 11 5555-5555",
       email: "demo@turnix.app",
       address: "Av. Corrientes 1234"
@@ -35,6 +36,7 @@ async function main() {
     create: {
       id: businessId,
       name: "Turnix Demo",
+      slug: "turnix-demo",
       phone: "+54 11 5555-5555",
       email: "demo@turnix.app",
       address: "Av. Corrientes 1234"
@@ -64,16 +66,14 @@ async function main() {
     update: {
       name: "Corte clásico",
       description: "Corte masculino tradicional.",
-      durationMinutes: 30,
-      price: "8000"
+      durationMinutes: 30
     },
     create: {
       id: haircutServiceId,
       businessId,
       name: "Corte clásico",
       description: "Corte masculino tradicional.",
-      durationMinutes: 30,
-      price: "8000"
+      durationMinutes: 30
     }
   });
 
@@ -82,16 +82,14 @@ async function main() {
     update: {
       name: "Perfilado de barba",
       description: "Perfilado y terminación de barba.",
-      durationMinutes: 30,
-      price: "6000"
+      durationMinutes: 30
     },
     create: {
       id: beardServiceId,
       businessId,
       name: "Perfilado de barba",
       description: "Perfilado y terminación de barba.",
-      durationMinutes: 30,
-      price: "6000"
+      durationMinutes: 30
     }
   });
 
@@ -138,10 +136,11 @@ async function main() {
         serviceId: haircutServiceId
       }
     },
-    update: { active: true },
+    update: { active: true, price: "8000" },
     create: {
       employeeId,
-      serviceId: haircutServiceId
+      serviceId: haircutServiceId,
+      price: "8000"
     }
   });
 
@@ -152,10 +151,41 @@ async function main() {
         serviceId: beardServiceId
       }
     },
-    update: { active: true },
+    update: { active: true, price: "6000" },
     create: {
       employeeId: secondEmployeeId,
-      serviceId: beardServiceId
+      serviceId: beardServiceId,
+      price: "6000"
+    }
+  });
+
+  await prisma.employeeService.upsert({
+    where: {
+      employeeId_serviceId: {
+        employeeId,
+        serviceId: beardServiceId
+      }
+    },
+    update: { active: true, price: "6000" },
+    create: {
+      employeeId,
+      serviceId: beardServiceId,
+      price: "6000"
+    }
+  });
+
+  await prisma.employeeService.upsert({
+    where: {
+      employeeId_serviceId: {
+        employeeId: secondEmployeeId,
+        serviceId: haircutServiceId
+      }
+    },
+    update: { active: true, price: "8000" },
+    create: {
+      employeeId: secondEmployeeId,
+      serviceId: haircutServiceId,
+      price: "8000"
     }
   });
 
@@ -202,7 +232,7 @@ async function main() {
   await prisma.appointment.upsert({
     where: { id: appointmentId },
     update: {
-      appointmentDate: new Date("2026-07-20T00:00:00.000Z"),
+      appointmentDate: new Date("2026-08-10T00:00:00.000Z"),
       startTime: time("10:00"),
       endTime: time("10:30"),
       status: "scheduled",
@@ -214,7 +244,7 @@ async function main() {
       clientId,
       employeeId,
       serviceId: haircutServiceId,
-      appointmentDate: new Date("2026-07-20T00:00:00.000Z"),
+      appointmentDate: new Date("2026-08-10T00:00:00.000Z"),
       startTime: time("10:00"),
       endTime: time("10:30"),
       status: "scheduled",

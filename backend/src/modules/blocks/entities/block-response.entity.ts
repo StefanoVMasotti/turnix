@@ -10,11 +10,11 @@ export class BlockResponse {
   @ApiProperty({ example: "2026-07-25T00:00:00.000Z" })
   blockDate!: Date;
 
-  @ApiProperty({ example: "1970-01-01T09:00:00.000Z" })
-  startTime!: Date;
+  @ApiProperty({ example: "09:00:00" })
+  startTime!: string;
 
-  @ApiProperty({ example: "1970-01-01T17:00:00.000Z" })
-  endTime!: Date;
+  @ApiProperty({ example: "17:00:00" })
+  endTime!: string;
 
   @ApiPropertyOptional({ example: "Reunión de equipo" })
   reason!: string | null;

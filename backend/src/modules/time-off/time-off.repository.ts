@@ -26,8 +26,8 @@ export class TimeOffRepository {
     return this.prisma.employeeTimeOff.create({
       data: {
         employeeId: data.employeeId,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
         reason: data.reason
       }
     });

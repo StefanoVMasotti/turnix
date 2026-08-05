@@ -88,6 +88,31 @@ No existe una tabla de slots.
 
 ---
 
+## Timezone (v1)
+
+Wall-clock local naive.
+
+Los horarios se almacenan como hora local del negocio sin conversión.
+
+`BusinessSettings.timezone` es la fuente de verdad del huso del negocio.
+
+La manipulación de fechas está centralizada en utilidades (backend `common/utils/time.ts`, frontend `src/utils/date.ts`), dejando preparada una futura migración a UTC.
+
+---
+
+## Reserva pública
+
+El negocio se identifica en la URL pública mediante `slug` (único, auto-generado y editable).
+
+Los endpoints públicos no usan `BusinessContextGuard` ni autenticación.
+
+Un único endpoint de disponibilidad:
+
+- Sin `date` → días disponibles del booking window.
+- Con `date` → slots del día.
+
+---
+
 ## Servicios
 
 Relación muchos a muchos entre empleados y servicios.

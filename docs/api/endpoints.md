@@ -1,5 +1,7 @@
 # API
 
+> La API usa el prefijo global `/api`. Los endpoints del panel administrativo requieren el header `x-business-id`. Los endpoints públicos se identifican por el `slug` del negocio y no requieren autenticación.
+
 ## Auth
 
 POST /auth/login
@@ -7,6 +9,28 @@ POST /auth/login
 POST /auth/logout
 
 GET /auth/profile
+
+---
+
+## Public (Reserva Pública)
+
+Endpoints sin autenticación, identifican al negocio por `slug`.
+
+GET /public/:slug
+
+- Datos de la landing del negocio: datos del negocio, settings, servicios activos con sus profesionales y precios.
+
+GET /public/:slug/availability?serviceId=&employeeId=&date=
+
+- Sin `date`: devuelve los días del booking window con cantidad de turnos libres (`{ days: [{ date, available, slotsCount }] }`). Alimenta el calendario.
+- Con `date=YYYY-MM-DD`: devuelve los horarios disponibles de ese día (`{ date, slots: [{ startTime, endTime }] }`).
+- `employeeId` es opcional: si se omite, se agrega la disponibilidad de todos los profesionales que ofrecen el servicio.
+
+POST /public/:slug/appointments
+
+- Crea un turno desde la reserva pública (`bookingSource: "web"`, `status: "scheduled"`).
+- Realiza find-or-create del cliente por teléfono.
+- Devuelve 409 si el horario ya no está disponible.
 
 ---
 
@@ -105,8 +129,6 @@ PUT /clients/:id
 ## Appointments
 
 GET /appointments
-
-GET /appointments/availability
 
 GET /appointments/:id
 

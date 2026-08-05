@@ -26,7 +26,7 @@ export class BlocksRepository {
     return this.prisma.employeeBlock.create({
       data: {
         employeeId: data.employeeId,
-        blockDate: data.blockDate,
+        blockDate: new Date(data.blockDate),
         startTime: data.startTime,
         endTime: data.endTime,
         reason: data.reason

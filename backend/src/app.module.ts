@@ -9,6 +9,7 @@ import { ClientsModule } from "./modules/clients/clients.module";
 import { EmployeeServicesModule } from "./modules/employee-services/employee-services.module";
 import { EmployeesModule } from "./modules/employees/employees.module";
 import { HealthModule } from "./modules/health/health.module";
+import { PublicModule } from "./modules/public/public.module";
 import { SchedulesModule } from "./modules/schedules/schedules.module";
 import { ServicesModule } from "./modules/services/services.module";
 import { TimeOffModule } from "./modules/time-off/time-off.module";
@@ -28,7 +29,8 @@ import { TimeOffModule } from "./modules/time-off/time-off.module";
     TimeOffModule,
     BlocksModule,
     ClientsModule,
-    AppointmentsModule
+    AppointmentsModule,
+    PublicModule
   ],
   providers: [AppConfig],
   exports: [AppConfig]

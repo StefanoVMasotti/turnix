@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MaxLength } from "class-validator";
 
 export class CreateAppointmentDto {
   @ApiProperty({ example: "44444444-4444-4444-4444-444444444444" })
@@ -25,11 +25,13 @@ export class CreateAppointmentDto {
   @ApiProperty({ example: "09:00:00" })
   @IsNotEmpty()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/)
   startTime!: string;
 
   @ApiProperty({ example: "09:30:00" })
   @IsNotEmpty()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/)
   endTime!: string;
 
   @ApiPropertyOptional({ example: "web", enum: ["web", "whatsapp", "phone", "walk_in"] })
