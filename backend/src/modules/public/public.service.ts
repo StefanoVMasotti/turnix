@@ -9,11 +9,9 @@ import { CreatePublicAppointmentDto } from "./dto/create-public-appointment.dto"
 import {
   addDays,
   dateToDate,
-  dateToMinutes,
   minutesToTime,
   nowMinutesInTimezone,
-  timeToDate,
-  timeToMinutesValue,
+  parseTimeToMinutes,
   toDateStr,
   todayInTimezone
 } from "../../common/utils/time";
@@ -169,7 +167,7 @@ export class PublicService {
     const target = dateToDate(dto.appointmentDate);
     this.validateDateInWindow(target, today, maxBookingDays);
 
-    const start = timeToMinutesValue(dto.startTime);
+    const start = parseTimeToMinutes(dto.startTime);
     const slots = await this.computeSlotsForDate(
       [dto.employeeId],
       target,
@@ -203,8 +201,8 @@ export class PublicService {
       employeeId: dto.employeeId,
       serviceId: dto.serviceId,
       appointmentDate: target,
-      startTime: timeToDate(minutesToTime(start)),
-      endTime: timeToDate(minutesToTime(end)),
+      startTime: minutesToTime(start),
+      endTime: minutesToTime(end),
       status: "scheduled",
       bookingSource: "web"
     });
@@ -303,8 +301,8 @@ export class PublicService {
       entries.push({
         employeeId: schedule.employeeId,
         dayOfWeek: schedule.dayOfWeek,
-        start: dateToMinutes(schedule.startTime),
-        end: dateToMinutes(schedule.endTime)
+        start: parseTimeToMinutes(schedule.startTime),
+        end: parseTimeToMinutes(schedule.endTime)
       });
       schedulesByKey.set(key, entries);
     }
@@ -321,8 +319,8 @@ export class PublicService {
       const entries = blocksByEmployee.get(block.employeeId) ?? [];
       entries.push({
         date: toDateStr(block.blockDate),
-        start: dateToMinutes(block.startTime),
-        end: dateToMinutes(block.endTime)
+        start: parseTimeToMinutes(block.startTime),
+        end: parseTimeToMinutes(block.endTime)
       });
       blocksByEmployee.set(block.employeeId, entries);
     }
@@ -332,8 +330,8 @@ export class PublicService {
       const entries = appointmentsByEmployee.get(appointment.employeeId) ?? [];
       entries.push({
         date: toDateStr(appointment.appointmentDate),
-        start: dateToMinutes(appointment.startTime),
-        end: dateToMinutes(appointment.endTime)
+        start: parseTimeToMinutes(appointment.startTime),
+        end: parseTimeToMinutes(appointment.endTime)
       });
       appointmentsByEmployee.set(appointment.employeeId, entries);
     }

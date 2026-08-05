@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsOptional, IsString, IsUUID, Matches, MaxLength } from "class-validator";
 
 export class UpdateAppointmentDto {
   @ApiPropertyOptional({ example: "44444444-4444-4444-4444-444444444444" })
@@ -25,11 +25,13 @@ export class UpdateAppointmentDto {
   @ApiPropertyOptional({ example: "10:00:00" })
   @IsOptional()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/)
   startTime?: string;
 
   @ApiPropertyOptional({ example: "10:30:00" })
   @IsOptional()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/)
   endTime?: string;
 
   @ApiPropertyOptional({ example: "completed", enum: ["scheduled", "completed", "cancelled", "no_show"] })

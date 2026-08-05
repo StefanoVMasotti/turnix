@@ -133,8 +133,8 @@ model EmployeeSchedule {
   id         String   @id @default(uuid()) @db.Uuid
   employeeId String   @map("employee_id") @db.Uuid
   dayOfWeek  Int      @map("day_of_week")
-  startTime  DateTime @map("start_time") @db.Time(0)
-  endTime    DateTime @map("end_time") @db.Time(0)
+  startTime  String   @map("start_time") @db.VarChar(8)
+  endTime    String   @map("end_time") @db.VarChar(8)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
   employee   Employee @relation(fields: [employeeId], references: [id])
@@ -159,8 +159,8 @@ model EmployeeBlock {
   id         String   @id @default(uuid()) @db.Uuid
   employeeId String   @map("employee_id") @db.Uuid
   blockDate  DateTime @map("block_date") @db.Date
-  startTime  DateTime @map("start_time") @db.Time(0)
-  endTime    DateTime @map("end_time") @db.Time(0)
+  startTime  String   @map("start_time") @db.VarChar(8)
+  endTime    String   @map("end_time") @db.VarChar(8)
   reason     String?  @db.VarChar(255)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -193,8 +193,8 @@ model Appointment {
   employeeId      String            @map("employee_id") @db.Uuid
   serviceId       String            @map("service_id") @db.Uuid
   appointmentDate DateTime          @map("appointment_date") @db.Date
-  startTime       DateTime          @map("start_time") @db.Time(0)
-  endTime         DateTime          @map("end_time") @db.Time(0)
+  startTime       String             @map("start_time") @db.VarChar(8)
+  endTime         String             @map("end_time") @db.VarChar(8)
   status          AppointmentStatus @default(scheduled)
   bookingSource   BookingSource     @default(web) @map("booking_source")
   notes           String?

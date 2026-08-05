@@ -8,8 +8,8 @@ interface CreateAppointmentData {
   employeeId: string;
   serviceId: string;
   appointmentDate: Date;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   status: "scheduled";
   bookingSource: "web";
 }

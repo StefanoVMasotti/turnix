@@ -2,6 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma/prisma.service";
 import { CreateEmployeeServiceDto } from "./dto/create-employee-service.dto";
 
+interface UpdateEmployeeServiceData {
+  price?: number;
+  active?: boolean;
+}
+
 @Injectable()
 export class EmployeeServicesRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -9,8 +14,7 @@ export class EmployeeServicesRepository {
   async findAllByBusinessId(businessId: string) {
     return this.prisma.employeeService.findMany({
       where: {
-        employee: { businessId },
-        active: true
+        employee: { businessId }
       },
       include: {
         employee: { select: { id: true, firstName: true, lastName: true } },
@@ -41,6 +45,21 @@ export class EmployeeServicesRepository {
         serviceId: data.serviceId,
         price: data.price
       }
+    });
+  }
+
+  async update(id: string, data: UpdateEmployeeServiceData) {
+    return this.prisma.employeeService.update({
+      where: { id },
+      data
+    });
+  }
+
+  async toggleActive(id: string) {
+    const employeeService = await this.findById(id);
+    return this.prisma.employeeService.update({
+      where: { id },
+      data: { active: !employeeService?.active }
     });
   }
 

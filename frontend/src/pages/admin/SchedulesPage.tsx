@@ -24,6 +24,7 @@ export function SchedulesPage() {
   const deleteSchedule = useDeleteSchedule();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterEmployeeId, setFilterEmployeeId] = useState("");
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -42,7 +43,9 @@ export function SchedulesPage() {
     setError("");
     createSchedule.mutate({
       ...formData,
-      dayOfWeek: Number(formData.dayOfWeek)
+      dayOfWeek: Number(formData.dayOfWeek),
+      startTime: formData.startTime + ":00",
+      endTime: formData.endTime + ":00"
     }, {
       onSuccess: () => { setIsModalOpen(false); },
       onError: () => { setError("Error al crear el horario"); }
@@ -57,6 +60,10 @@ export function SchedulesPage() {
 
   if (isLoading) return <p className="text-slate-400">Cargando horarios...</p>;
 
+  const filteredSchedules = filterEmployeeId
+    ? schedules?.filter((s) => s.employeeId === filterEmployeeId)
+    : schedules;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -67,8 +74,18 @@ export function SchedulesPage() {
         </Button>
       </div>
 
+      <div className="mb-4">
+        <Select
+          label="Filtrar por empleado"
+          value={filterEmployeeId}
+          onChange={(e) => setFilterEmployeeId(e.target.value)}
+          options={employees?.map((e) => ({ value: e.id, label: `${e.firstName} ${e.lastName}` })) ?? []}
+          placeholder="Todos los empleados"
+        />
+      </div>
+
       <div className="space-y-3">
-        {schedules?.map((schedule) => (
+        {filteredSchedules?.map((schedule) => (
           <Card key={schedule.id} className="flex items-center justify-between">
             <div>
               <p className="font-medium text-slate-100">

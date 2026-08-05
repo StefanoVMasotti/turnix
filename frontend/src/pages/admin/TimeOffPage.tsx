@@ -8,6 +8,10 @@ import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
 export function TimeOffPage() {
   const { data: timeOff, isLoading } = useTimeOff();
   const { data: employees } = useEmployees();
@@ -63,7 +67,7 @@ export function TimeOffPage() {
                 {getEmployeeName(item.employeeId)}
               </p>
               <p className="text-sm text-slate-400">
-                {item.startDate} - {item.endDate}{item.reason ? ` · ${item.reason}` : ""}
+                {formatDate(item.startDate)} - {formatDate(item.endDate)}{item.reason ? ` · ${item.reason}` : ""}
               </p>
             </div>
             <Button variant="danger" size="sm" onClick={() => { handleDelete(item.id); }}>

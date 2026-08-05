@@ -1,16 +1,6 @@
-const DATE_PLACEHOLDER = "1970-01-01";
-
-export function timeToDate(time: string): Date {
-  const [hours, minutes, seconds = "00"] = time.split(":");
-  return new Date(`${DATE_PLACEHOLDER}T${hours}:${minutes}:${seconds}Z`);
-}
-
-export function dateToDate(date: string): Date {
-  return new Date(`${date}T00:00:00.000Z`);
-}
-
-export function dateToMinutes(date: Date): number {
-  return date.getUTCHours() * 60 + date.getUTCMinutes();
+export function parseTimeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
 }
 
 export function minutesToTime(minutes: number): string {
@@ -23,6 +13,10 @@ export function minutesToTimeShort(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+}
+
+export function dateToDate(date: string): Date {
+  return new Date(`${date}T00:00:00.000Z`);
 }
 
 export function toDateStr(date: Date): string {
@@ -73,8 +67,4 @@ export function nowMinutesInTimezone(timezone: string): number {
 
   const hours = Number(values.hour) === 24 ? 0 : Number(values.hour);
   return hours * 60 + Number(values.minute);
-}
-
-export function timeToMinutesValue(time: string): number {
-  return dateToMinutes(timeToDate(time));
 }

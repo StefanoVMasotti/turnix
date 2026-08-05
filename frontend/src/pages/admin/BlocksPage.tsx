@@ -8,6 +8,10 @@ import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
 export function BlocksPage() {
   const { data: blocks, isLoading } = useBlocks();
   const { data: employees } = useEmployees();
@@ -68,7 +72,7 @@ export function BlocksPage() {
                 {getEmployeeName(block.employeeId)}
               </p>
               <p className="text-sm text-slate-400">
-                {block.blockDate} · {block.startTime} - {block.endTime}
+                {formatDate(block.blockDate)} · {block.startTime} - {block.endTime}
                 {block.reason ? ` · ${block.reason}` : ""}
               </p>
             </div>

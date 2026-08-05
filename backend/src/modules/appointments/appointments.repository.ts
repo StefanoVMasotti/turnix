@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma/prisma.service";
-import { dateToDate, timeToDate } from "../../common/utils/time";
+import { dateToDate } from "../../common/utils/time";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 
@@ -42,8 +42,8 @@ export class AppointmentsRepository {
         employeeId: data.employeeId,
         serviceId: data.serviceId,
         appointmentDate: dateToDate(data.appointmentDate),
-        startTime: timeToDate(data.startTime),
-        endTime: timeToDate(data.endTime),
+        startTime: data.startTime,
+        endTime: data.endTime,
         bookingSource: (data.bookingSource ?? "web") as "web" | "whatsapp" | "phone" | "walk_in",
         notes: data.notes
       }
@@ -60,10 +60,10 @@ export class AppointmentsRepository {
       updateData.appointmentDate = dateToDate(data.appointmentDate);
     }
     if (data.startTime) {
-      updateData.startTime = timeToDate(data.startTime);
+      updateData.startTime = data.startTime;
     }
     if (data.endTime) {
-      updateData.endTime = timeToDate(data.endTime);
+      updateData.endTime = data.endTime;
     }
     if (data.clientId !== undefined) {
       updateData.clientId = data.clientId;

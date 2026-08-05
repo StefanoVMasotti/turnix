@@ -11,6 +11,16 @@ export async function createEmployeeService(data: Omit<EmployeeService, "id" | "
   return response.data;
 }
 
+export async function updateEmployeeService(id: string, data: Partial<EmployeeService>): Promise<EmployeeService> {
+  const response = await api.put<EmployeeService>(`/employee-services/${id}`, data);
+  return response.data;
+}
+
+export async function toggleEmployeeServiceActive(id: string): Promise<EmployeeService> {
+  const response = await api.patch<EmployeeService>(`/employee-services/${id}/toggle-active`);
+  return response.data;
+}
+
 export async function deleteEmployeeService(id: string): Promise<EmployeeService> {
   const response = await api.delete<EmployeeService>(`/employee-services/${id}`);
   return response.data;
