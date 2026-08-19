@@ -1,13 +1,19 @@
 import type { AvailabilityDay } from "../../types/public";
 import { weekdayLabel } from "../../utils/date";
+import { Spinner } from "../ui/Spinner";
 
 interface CalendarProps {
   days: AvailabilityDay[];
   selectedDate: string | null;
   onSelect: (date: string) => void;
+  isLoading?: boolean;
 }
 
-export function Calendar({ days, selectedDate, onSelect }: CalendarProps) {
+export function Calendar({ days, selectedDate, onSelect, isLoading }: CalendarProps) {
+  if (isLoading) {
+    return <Spinner className="py-8" />;
+  }
+
   if (days.length === 0) {
     return <p className="text-sm text-slate-500">No hay disponibilidad en los próximos días.</p>;
   }

@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, ChevronLeft } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { Spinner } from "../../components/ui/Spinner";
 import { ServiceCard } from "../../components/booking/ServiceCard";
 import { ProfessionalCard } from "../../components/booking/ProfessionalCard";
 import { Calendar } from "../../components/booking/Calendar";
@@ -12,7 +13,7 @@ import {
   useAvailabilityDays,
   useAvailabilitySlots,
   useCreatePublicAppointment,
-  usePublicLanding
+  usePublicLanding,
 } from "../../hooks/usePublicBooking";
 import type { PublicAppointment, TimeSlot } from "../../types/public";
 import { formatDate, formatTime, weekdayLabel } from "../../utils/date";
@@ -29,16 +30,31 @@ export function PublicBookingPage() {
   const [slot, setSlot] = useState<TimeSlot | null>(null);
   const [created, setCreated] = useState<PublicAppointment | null>(null);
 
-  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "", email: "" });
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+  });
   const [formError, setFormError] = useState("");
   const [submitError, setSubmitError] = useState("");
 
   const currency = landing?.settings.currency ?? "ARS";
   const service = landing?.services.find((s) => s.id === serviceId) ?? null;
-  const employee = service?.employees.find((e) => e.employeeId === employeeId) ?? null;
+  const employee =
+    service?.employees.find((e) => e.employeeId === employeeId) ?? null;
 
-  const { data: days } = useAvailabilityDays(slug, serviceId, employeeId);
-  const { data: slots, isFetching: slotsLoading } = useAvailabilitySlots(slug, serviceId, date, employeeId);
+  const { data: days, isLoading: daysLoading } = useAvailabilityDays(
+    slug,
+    serviceId,
+    employeeId,
+  );
+  const { data: slots, isFetching: slotsLoading } = useAvailabilitySlots(
+    slug,
+    serviceId,
+    date,
+    employeeId,
+  );
 
   function selectService(id: string) {
     setServiceId(id);
@@ -92,8 +108,8 @@ export function PublicBookingPage() {
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
           phone: form.phone.trim(),
-          email: form.email.trim() || undefined
-        }
+          email: form.email.trim() || undefined,
+        },
       },
       {
         onSuccess: (appointment) => {
@@ -101,19 +117,22 @@ export function PublicBookingPage() {
           setStep(6);
         },
         onError: (error) => {
-          const status = (error as { response?: { status?: number } }).response?.status;
+          const status = (error as { response?: { status?: number } }).response
+            ?.status;
           setSubmitError(
             status === 409
               ? "Ese horario ya no está disponible. Elegí otro."
-              : "No se pudo confirmar la reserva. Intentalo de nuevo."
+              : "No se pudo confirmar la reserva. Intentalo de nuevo.",
           );
-        }
-      }
+        },
+      },
     );
   }
 
   if (isLoading) {
-    return <p className="mx-auto max-w-6xl px-6 py-16 text-slate-400">Cargando...</p>;
+    return (
+      <p className="mx-auto max-w-6xl px-6 py-16 text-slate-400">Cargando...</p>
+    );
   }
 
   if (!landing) {
@@ -129,17 +148,28 @@ export function PublicBookingPage() {
       <div className="mx-auto max-w-lg px-6 py-16">
         <div className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 text-center">
           <CheckCircle aria-hidden="true" className="h-12 w-12 text-success" />
-          <h1 className="mt-4 text-2xl font-bold text-slate-50">¡Turno confirmado!</h1>
+          <h1 className="mt-4 text-2xl font-bold text-slate-50">
+            ¡Turno confirmado!
+          </h1>
           <p className="mt-2 text-sm text-slate-400">
-            {created.service?.name} con {created.employee?.firstName} {created.employee?.lastName}
+            {created.service?.name} con {created.employee?.firstName}{" "}
+            {created.employee?.lastName}
           </p>
           <p className="mt-1 text-sm text-slate-300">
-            {weekdayLabel(created.appointmentDate)}, {formatDate(created.appointmentDate)} a las{" "}
+            {weekdayLabel(created.appointmentDate)}{" "}
+            {formatDate(created.appointmentDate)} a las{" "}
             {formatTime(created.startTime)}
           </p>
-          <p className="mt-4 text-xs text-slate-500">Código: {created.id.slice(0, 8)}</p>
+          <p className="mt-4 text-xs text-slate-500">
+            Código: {created.id.slice(0, 8)}
+          </p>
           <Link to={`/${slug}`} className="mt-6">
-            <Button variant="secondary" onClick={() => { window.location.reload(); }}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
               Nueva reserva
             </Button>
           </Link>
@@ -151,25 +181,36 @@ export function PublicBookingPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-50">{landing.business.name}</h1>
+        <h1 className="text-2xl font-bold text-slate-50">
+          {landing.business.name}
+        </h1>
         {landing.business.address && (
-          <p className="mt-1 text-sm text-slate-400">{landing.business.address}</p>
+          <p className="mt-1 text-sm text-slate-400">
+            {landing.business.address}
+          </p>
         )}
       </div>
 
       <div className="mb-6 flex items-center gap-3">
         {step > 1 && step < 6 && (
-          <button onClick={back} className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">
+          <button
+            onClick={back}
+            className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200"
+          >
             <ChevronLeft aria-hidden="true" className="h-4 w-4" />
             Volver
           </button>
         )}
-        <span className="text-xs font-medium text-slate-500">Paso {step} de 5</span>
+        <span className="text-xs font-medium text-slate-500">
+          Paso {step} de 5
+        </span>
       </div>
 
       {step === 1 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-100">Elegí un servicio</h2>
+          <h2 className="mb-4 text-lg font-semibold text-slate-100">
+            Elegí un servicio
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {landing.services.map((s) => (
               <ServiceCard
@@ -177,7 +218,9 @@ export function PublicBookingPage() {
                 service={s}
                 currency={currency}
                 selected={s.id === serviceId}
-                onSelect={() => { selectService(s.id); }}
+                onSelect={() => {
+                  selectService(s.id);
+                }}
               />
             ))}
           </div>
@@ -186,7 +229,9 @@ export function PublicBookingPage() {
 
       {step === 2 && service && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-100">Elegí un profesional</h2>
+          <h2 className="mb-4 text-lg font-semibold text-slate-100">
+            Elegí un profesional
+          </h2>
           {service.employees.length === 0 ? (
             <p className="text-sm text-slate-500">
               Este servicio no tiene profesionales disponibles por el momento.
@@ -199,7 +244,9 @@ export function PublicBookingPage() {
                   employee={emp}
                   currency={currency}
                   selected={emp.employeeId === employeeId}
-                  onSelect={() => { selectEmployee(emp.employeeId); }}
+                  onSelect={() => {
+                    selectEmployee(emp.employeeId);
+                  }}
                 />
               ))}
             </div>
@@ -209,22 +256,33 @@ export function PublicBookingPage() {
 
       {step === 3 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-100">Elegí un día</h2>
-          <Calendar days={days ?? []} selectedDate={date} onSelect={selectDate} />
+          <h2 className="mb-4 text-lg font-semibold text-slate-100">
+            Elegí un día
+          </h2>
+          <Calendar
+            days={days ?? []}
+            selectedDate={date}
+            onSelect={selectDate}
+            isLoading={daysLoading}
+          />
         </section>
       )}
 
       {step === 4 && (
         <section>
-          <h2 className="mb-1 text-lg font-semibold text-slate-100">Elegí un horario</h2>
+          <h2 className="mb-1 text-lg font-semibold text-slate-100">
+            Elegí un horario
+          </h2>
           {date && (
             <p className="mb-4 text-sm text-slate-400">
               {weekdayLabel(date)}, {formatDate(date)}
             </p>
           )}
-          {slotsLoading && <p className="text-sm text-slate-500">Buscando horarios...</p>}
+          {slotsLoading && <Spinner className="py-8" />}
           {!slotsLoading && (slots?.length ?? 0) === 0 && (
-            <p className="text-sm text-slate-500">No hay horarios disponibles ese día.</p>
+            <p className="text-sm text-slate-500">
+              No hay horarios disponibles ese día.
+            </p>
           )}
           <div className="flex flex-wrap gap-2">
             {slots?.map((s) => (
@@ -232,7 +290,10 @@ export function PublicBookingPage() {
                 key={s.startTime}
                 slot={s}
                 selected={slot?.startTime === s.startTime}
-                onSelect={() => { setSlot(s); setStep(5); }}
+                onSelect={() => {
+                  setSlot(s);
+                  setStep(5);
+                }}
               />
             ))}
           </div>
@@ -242,47 +303,66 @@ export function PublicBookingPage() {
       {step === 5 && service && employee && slot && (
         <section className="grid gap-6 md:grid-cols-2">
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-slate-100">Tus datos</h2>
+            <h2 className="mb-4 text-lg font-semibold text-slate-100">
+              Tus datos
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 label="Nombre"
                 value={form.firstName}
-                onChange={(e) => { setForm({ ...form, firstName: e.target.value }); }}
+                onChange={(e) => {
+                  setForm({ ...form, firstName: e.target.value });
+                }}
                 required
               />
               <Input
                 label="Apellido"
                 value={form.lastName}
-                onChange={(e) => { setForm({ ...form, lastName: e.target.value }); }}
+                onChange={(e) => {
+                  setForm({ ...form, lastName: e.target.value });
+                }}
                 required
               />
               <Input
                 label="Teléfono"
                 value={form.phone}
-                onChange={(e) => { setForm({ ...form, phone: e.target.value }); }}
+                onChange={(e) => {
+                  setForm({ ...form, phone: e.target.value });
+                }}
                 required
               />
               <Input
                 label="Email (opcional)"
                 type="email"
                 value={form.email}
-                onChange={(e) => { setForm({ ...form, email: e.target.value }); }}
+                onChange={(e) => {
+                  setForm({ ...form, email: e.target.value });
+                }}
               />
               {formError && <p className="text-sm text-error">{formError}</p>}
-              {submitError && <p className="text-sm text-error">{submitError}</p>}
+              {submitError && (
+                <p className="text-sm text-error">{submitError}</p>
+              )}
               <div className="flex gap-3 pt-2">
                 <Button variant="secondary" type="button" onClick={back}>
-                  <ArrowLeft aria-hidden="true" className="mr-1 inline h-4 w-4" />
+                  <ArrowLeft
+                    aria-hidden="true"
+                    className="mr-1 inline h-4 w-4"
+                  />
                   Volver
                 </Button>
                 <Button type="submit" disabled={createAppointment.isPending}>
-                  {createAppointment.isPending ? "Confirmando..." : "Confirmar turno"}
+                  {createAppointment.isPending
+                    ? "Confirmando..."
+                    : "Confirmar turno"}
                 </Button>
               </div>
             </form>
           </div>
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-slate-100">Resumen</h2>
+            <h2 className="mb-4 text-lg font-semibold text-slate-100">
+              Resumen
+            </h2>
             <AppointmentSummary
               service={service}
               employee={employee}
