@@ -27,8 +27,8 @@ export class PublicBusinessSettingsEntity {
   @ApiProperty({ example: "ARS" })
   currency!: string;
 
-  @ApiProperty({ example: 30 })
-  appointmentInterval!: number;
+  @ApiProperty({ example: 0 })
+  bufferMinutes!: number;
 
   @ApiProperty({ example: 30 })
   maxBookingDays!: number;

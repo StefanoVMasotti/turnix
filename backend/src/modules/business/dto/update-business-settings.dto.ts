@@ -14,12 +14,12 @@ export class UpdateBusinessSettingsDto {
   @Length(3, 3)
   currency?: string;
 
-  @ApiPropertyOptional({ example: 30, minimum: 5, maximum: 120 })
+  @ApiPropertyOptional({ example: 0, minimum: 0, maximum: 120 })
   @IsOptional()
   @IsInt()
-  @Min(5)
+  @Min(0)
   @Max(120)
-  appointmentInterval?: number;
+  bufferMinutes?: number;
 
   @ApiPropertyOptional({ example: 30, minimum: 1, maximum: 365 })
   @IsOptional()
