@@ -8,6 +8,8 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Spinner } from "../../components/ui/Spinner";
 import type { EmployeeService } from "../../types/employee-service";
 
 export function EmployeeServicesPage() {
@@ -21,6 +23,7 @@ export function EmployeeServicesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<EmployeeService | null>(null);
   const [error, setError] = useState("");
+  const [toggleId, setToggleId] = useState<string | null>(null);
   const [employeeId, setEmployeeId] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [price, setPrice] = useState(0);
@@ -66,11 +69,11 @@ export function EmployeeServicesPage() {
     });
   }
 
-  if (isLoading) return <p className="text-slate-400">Cargando asignaciones...</p>;
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando asignaciones...</p></div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Servicios por Empleado</h1>
         <Button onClick={openCreateModal}>
           <Plus size={16} className="mr-2" />
@@ -108,8 +111,8 @@ export function EmployeeServicesPage() {
                 <Button
                   variant={a.active ? "danger" : "primary"}
                   size="sm"
-                  onClick={() => { toggleActive.mutate(a.id); }}
-                  disabled={toggleActive.isPending}
+                onClick={() => { setToggleId(a.id); }}
+                disabled={toggleActive.isPending}
                 >
                   <Power size={14} />
                 </Button>
@@ -118,6 +121,24 @@ export function EmployeeServicesPage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={toggleId !== null}
+        onClose={() => { if (!toggleActive.isPending) setToggleId(null); }}
+        onConfirm={() => {
+          if (!toggleId) return;
+          toggleActive.mutate(toggleId, {
+            onSettled: () => { setToggleId(null); }
+          });
+        }}
+        title={toggleId && assignments?.find((a) => a.id === toggleId)?.active ? "Desactivar asignación" : "Activar asignación"}
+        description={toggleId && assignments?.find((a) => a.id === toggleId)?.active
+          ? "¿Seguro que querés desactivar esta asignación? El empleado no podrá ofrecer este servicio."
+          : "¿Seguro que querés activar esta asignación? El empleado volverá a ofrecer este servicio."}
+        confirmLabel={toggleId && assignments?.find((a) => a.id === toggleId)?.active ? "Sí, desactivar" : "Sí, activar"}
+        variant={toggleId && assignments?.find((a) => a.id === toggleId)?.active ? "danger" : "primary"}
+        loading={toggleActive.isPending}
+      />
 
       <Modal
         isOpen={isModalOpen}

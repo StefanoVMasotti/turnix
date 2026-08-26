@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
+import { Spinner } from "../../components/ui/Spinner";
 import type { Client } from "../../types/client";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -88,11 +89,11 @@ export function ClientsPage() {
     }
   }
 
-  if (isLoading) return <p className="text-slate-400">Cargando clientes...</p>;
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando clientes...</p></div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Clientes</h1>
         <Button onClick={openCreateModal}>
           <Plus size={16} className="mr-2" />
@@ -176,10 +177,10 @@ export function ClientsPage() {
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {historyAppointments.map((apt) => (
               <div key={apt.id} className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border">
-                <div className="text-sm text-slate-400 w-20 shrink-0">
+                <div className="text-sm text-slate-400 shrink-0">
                   {formatDate(apt.appointmentDate)}
                 </div>
-                <div className="text-sm font-medium text-slate-100 w-20 shrink-0">
+                <div className="text-sm font-medium text-slate-100 shrink-0">
                   {formatTime(apt.startTime)}
                 </div>
                 <div className="text-sm text-slate-200 truncate flex-1">

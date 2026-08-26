@@ -88,15 +88,22 @@ export function DashboardPage() {
         <div className="space-y-3">
           {upcoming?.map((apt) => (
             <Card key={apt.id}>
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-slate-400 w-14 shrink-0">
-                  {formatDate(apt.appointmentDate)}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <div className="flex items-center justify-between gap-3 sm:contents">
+                  <div className="text-sm text-slate-400 w-14 shrink-0">
+                    {formatDate(apt.appointmentDate)}
+                  </div>
+                  <div className="text-sm font-medium text-slate-100 w-24 shrink-0">
+                    {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-slate-100 w-24 shrink-0">
-                  {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
-                </div>
-                <div className="text-sm text-slate-200 truncate">
-                  {apt.client ? `${apt.client.firstName} ${apt.client.lastName}` : "—"}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm text-slate-200 truncate">
+                    {apt.client ? `${apt.client.firstName} ${apt.client.lastName}` : "—"}
+                  </div>
+                  <Badge variant={STATUS_VARIANTS[apt.status] ?? "info"}>
+                    {STATUS_LABELS[apt.status] ?? apt.status}
+                  </Badge>
                 </div>
                 <div className="text-sm text-slate-400 truncate hidden sm:block">
                   {apt.service?.name ?? "—"}
@@ -104,9 +111,6 @@ export function DashboardPage() {
                 <div className="text-sm text-slate-400 truncate hidden md:block">
                   {apt.employee ? `${apt.employee.firstName} ${apt.employee.lastName}` : "—"}
                 </div>
-                <Badge variant={STATUS_VARIANTS[apt.status] ?? "info"}>
-                  {STATUS_LABELS[apt.status] ?? apt.status}
-                </Badge>
               </div>
             </Card>
           ))}

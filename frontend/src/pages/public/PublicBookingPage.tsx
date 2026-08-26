@@ -76,7 +76,6 @@ export function PublicBookingPage() {
   function selectDate(nextDate: string) {
     setDate(nextDate);
     setSlot(null);
-    setStep(4);
   }
 
   function back() {
@@ -85,7 +84,6 @@ export function PublicBookingPage() {
     if (step === 2) setStep(1);
     else if (step === 3) setStep(2);
     else if (step === 4) setStep(3);
-    else if (step === 5) setStep(4);
     else setStep(1);
   }
 
@@ -124,7 +122,7 @@ export function PublicBookingPage() {
         onSuccess: (appointment) => {
           setShowConfirm(false);
           setCreated(appointment);
-          setStep(6);
+          setStep(5);
         },
         onError: (error) => {
           const status = (error as { response?: { status?: number } }).response
@@ -153,7 +151,7 @@ export function PublicBookingPage() {
     );
   }
 
-  if (step === 6 && created) {
+  if (step === 5 && created) {
     return (
       <div className="mx-auto max-w-lg px-6 py-16">
         <div className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 text-center">
@@ -202,7 +200,7 @@ export function PublicBookingPage() {
       </div>
 
       <div className="mb-6 flex items-center gap-3">
-        {step > 1 && step < 6 && (
+        {step > 1 && step < 5 && (
           <button
             onClick={back}
             className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200"
@@ -212,7 +210,7 @@ export function PublicBookingPage() {
           </button>
         )}
         <span className="text-xs font-medium text-slate-500">
-          Paso {step} de 5
+          Paso {step} de 4
         </span>
       </div>
 
@@ -275,42 +273,68 @@ export function PublicBookingPage() {
             onSelect={selectDate}
             isLoading={daysLoading}
           />
-        </section>
-      )}
 
-      {step === 4 && (
-        <section>
-          <h2 className="mb-1 text-lg font-semibold text-slate-100">
-            Elegí un horario
-          </h2>
           {date && (
-            <p className="mb-4 text-sm text-slate-400">
-              {weekdayLabel(date)}, {formatDate(date)}
-            </p>
+            <div className="mt-6">
+              <p className="mb-3 text-sm text-slate-400">
+                {weekdayLabel(date)}, {formatDate(date)}
+              </p>
+              {slotsLoading && <Spinner className="py-8" />}
+              {!slotsLoading && (slots?.length ?? 0) === 0 && (
+                <p className="text-sm text-slate-500">
+                  No hay horarios disponibles ese día.
+                </p>
+              )}
+              {(() => {
+                const morningSlots = slots?.filter((s) => s.startTime < "12:00") ?? [];
+                const afternoonSlots = slots?.filter((s) => s.startTime >= "12:00") ?? [];
+                return (
+                  <>
+                    {morningSlots.length > 0 && (
+                      <div className="mb-4">
+                        <h3 className="text-sm font-medium text-slate-400 mb-2">Mañana</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {morningSlots.map((s) => (
+                            <TimeSlotButton
+                              key={s.startTime}
+                              slot={s}
+                              selected={slot?.startTime === s.startTime}
+                              onSelect={() => {
+                                setSlot(s);
+                                setStep(4);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {afternoonSlots.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-400 mb-2">Tarde</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {afternoonSlots.map((s) => (
+                            <TimeSlotButton
+                              key={s.startTime}
+                              slot={s}
+                              selected={slot?.startTime === s.startTime}
+                              onSelect={() => {
+                                setSlot(s);
+                                setStep(4);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
           )}
-          {slotsLoading && <Spinner className="py-8" />}
-          {!slotsLoading && (slots?.length ?? 0) === 0 && (
-            <p className="text-sm text-slate-500">
-              No hay horarios disponibles ese día.
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            {slots?.map((s) => (
-              <TimeSlotButton
-                key={s.startTime}
-                slot={s}
-                selected={slot?.startTime === s.startTime}
-                onSelect={() => {
-                  setSlot(s);
-                  setStep(5);
-                }}
-              />
-            ))}
-          </div>
         </section>
       )}
 
-      {step === 5 && service && employee && slot && (
+      {step === 4 && service && employee && slot && (
         <section className="grid gap-6 md:grid-cols-2">
           <div>
             <h2 className="mb-4 text-lg font-semibold text-slate-100">

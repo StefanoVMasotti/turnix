@@ -8,6 +8,7 @@ import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Spinner } from "../../components/ui/Spinner";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -54,11 +55,11 @@ export function TimeOffPage() {
     });
   }
 
-  if (isLoading) return <p className="text-slate-400">Cargando permisos...</p>;
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando permisos...</p></div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Permisos (Time Off)</h1>
         <Button onClick={() => { setIsModalOpen(true); }}>
           <Plus size={16} className="mr-2" />
@@ -69,11 +70,11 @@ export function TimeOffPage() {
       <div className="space-y-3">
         {timeOff?.map((item) => (
           <Card key={item.id} className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-slate-100">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium text-slate-100 truncate">
                 {getEmployeeName(item.employeeId)}
               </p>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-400 truncate">
                 {formatDate(item.startDate)} - {formatDate(item.endDate)}{item.reason ? ` · ${item.reason}` : ""}
               </p>
             </div>

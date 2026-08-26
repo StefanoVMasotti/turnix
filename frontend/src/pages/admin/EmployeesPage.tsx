@@ -6,6 +6,8 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Spinner } from "../../components/ui/Spinner";
 import type { Employee } from "../../types/employee";
 
 export function EmployeesPage() {
@@ -17,6 +19,7 @@ export function EmployeesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [error, setError] = useState("");
+  const [toggleId, setToggleId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -58,14 +61,21 @@ export function EmployeesPage() {
   }
 
   function handleToggleActive(id: string) {
-    toggleActive.mutate(id);
+    setToggleId(id);
   }
 
-  if (isLoading) return <p className="text-slate-400">Cargando empleados...</p>;
+  function confirmToggle() {
+    if (!toggleId) return;
+    toggleActive.mutate(toggleId, {
+      onSettled: () => { setToggleId(null); }
+    });
+  }
+
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando empleados...</p></div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Empleados</h1>
         <Button onClick={openCreateModal}>
           <Plus size={16} className="mr-2" />
@@ -104,6 +114,19 @@ export function EmployeesPage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={toggleId !== null}
+        onClose={() => { if (!toggleActive.isPending) setToggleId(null); }}
+        onConfirm={confirmToggle}
+        title={toggleId && employees?.find((e) => e.id === toggleId)?.active ? "Desactivar empleado" : "Activar empleado"}
+        description={toggleId && employees?.find((e) => e.id === toggleId)?.active
+          ? "¿Seguro que querés desactivar este empleado? No recibirá nuevos turnos."
+          : "¿Seguro que querés activar este empleado? Volverá a estar disponible para turnos."}
+        confirmLabel={toggleId && employees?.find((e) => e.id === toggleId)?.active ? "Sí, desactivar" : "Sí, activar"}
+        variant={toggleId && employees?.find((e) => e.id === toggleId)?.active ? "danger" : "primary"}
+        loading={toggleActive.isPending}
+      />
 
       <Modal
         isOpen={isModalOpen}

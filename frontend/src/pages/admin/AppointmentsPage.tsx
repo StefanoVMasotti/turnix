@@ -10,6 +10,7 @@ import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Spinner } from "../../components/ui/Spinner";
 import { formatDate, formatTime, toLocalDateStr } from "../../utils/date";
 import type { Appointment } from "../../types/appointment";
 
@@ -131,11 +132,11 @@ export function AppointmentsPage() {
     return true;
   });
 
-  if (isLoading) return <p className="text-slate-400">Cargando turnos...</p>;
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando turnos...</p></div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Turnos</h1>
         <Button onClick={openCreateModal}>
           <Plus size={16} className="mr-2" />
@@ -143,7 +144,7 @@ export function AppointmentsPage() {
         </Button>
       </div>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <Input
           label="Fecha"
           type="date"
@@ -172,8 +173,8 @@ export function AppointmentsPage() {
         )}
         {filtered?.map((apt) => (
           <Card key={apt.id}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 flex-wrap sm:flex-nowrap">
                 <div className="text-sm text-slate-400 w-24 shrink-0">
                   {formatDate(apt.appointmentDate)}
                 </div>
@@ -193,7 +194,7 @@ export function AppointmentsPage() {
                   {STATUS_LABELS[apt.status] ?? apt.status}
                 </Badge>
               </div>
-              <div className="flex gap-2 ml-4 shrink-0">
+              <div className="flex gap-2 sm:ml-4 sm:shrink-0 justify-end">
                 <Button variant="secondary" size="sm" onClick={() => { openEditModal(apt); }}>
                   <Pencil size={14} />
                 </Button>
@@ -268,7 +269,7 @@ export function AppointmentsPage() {
             onChange={(e) => { setFormData({ ...formData, appointmentDate: e.target.value }); }}
             required
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Hora inicio"
               type="time"

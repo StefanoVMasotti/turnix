@@ -37,7 +37,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
@@ -47,14 +47,14 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative w-full ${SIZES[size]} mx-4 animate-scale-in rounded-[20px] border border-border bg-surface shadow-2xl shadow-black/40`}
+        className={`relative w-full ${SIZES[size]} mx-auto my-auto max-h-[calc(100vh-16px)] sm:max-h-[calc(100vh-32px)] overflow-y-auto animate-scale-in rounded-[20px] border border-border bg-surface shadow-2xl shadow-black/40`}
       >
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-card hover:text-slate-200"
+            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-card hover:text-slate-200"
           >
             <X size={20} />
           </button>

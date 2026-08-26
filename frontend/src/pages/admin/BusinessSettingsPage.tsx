@@ -3,6 +3,7 @@ import { useBusiness, useUpdateBusiness, useBusinessSettings, useUpdateBusinessS
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { Spinner } from "../../components/ui/Spinner";
 
 export function BusinessSettingsPage() {
   const { data: business, isLoading: isLoadingBusiness } = useBusiness();
@@ -69,7 +70,7 @@ export function BusinessSettingsPage() {
   }
 
   if (isLoadingBusiness || isLoadingSettings) {
-    return <p className="text-slate-400">Cargando configuración...</p>;
+    return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando configuración...</p></div>;
   }
 
   return (

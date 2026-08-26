@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Users, UserCog, Link2, Calendar, CalendarDays, Clock, Ban, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Wrench, Users, UserCog, Link2, Calendar, CalendarDays, Clock, Ban, Settings, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -19,17 +19,43 @@ const navItems = [
 export function AdminLayout() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSidebarOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [sidebarOpen]);
 
   return (
     <div className="flex min-h-screen bg-background text-slate-50">
-      <aside className={`${collapsed ? "w-16" : "w-60"} transition-all duration-300 border-r border-border bg-surface flex flex-col`}>
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={() => { setSidebarOpen(false); }}
+        />
+      )}
+
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-60 transform bg-surface border-r border-border flex flex-col transition-transform duration-300
+        md:relative md:translate-x-0 md:transition-all md:duration-300
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        ${collapsed ? "md:w-16" : "md:w-60"}
+      `}>
         <div className="flex items-center justify-between px-4 py-5 border-b border-border">
           {!collapsed && (
             <span className="font-semibold text-sm">Turnix Admin</span>
           )}
           <button
             onClick={() => { setCollapsed(!collapsed); }}
-            className="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-card"
+            className="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-card hidden md:block"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -55,8 +81,18 @@ export function AdminLayout() {
           })}
         </nav>
       </aside>
-      <main className="flex-1 overflow-auto">
-        <div className="px-8 py-6">
+
+      <main className="flex-1 overflow-auto min-w-0">
+        <div className="px-4 py-4 md:px-8 md:py-6">
+          <div className="flex items-center gap-3 mb-4 md:hidden">
+            <button
+              onClick={() => { setSidebarOpen(true); }}
+              className="text-slate-400 hover:text-slate-200 transition-colors p-2 rounded-lg hover:bg-card"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="font-semibold text-sm">Turnix Admin</span>
+          </div>
           <Outlet />
         </div>
       </main>

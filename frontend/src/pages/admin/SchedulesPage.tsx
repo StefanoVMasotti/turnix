@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Spinner } from "../../components/ui/Spinner";
 
 const days = [
   { value: "0", label: "Domingo" },
@@ -65,7 +66,7 @@ export function SchedulesPage() {
     });
   }
 
-  if (isLoading) return <p className="text-slate-400">Cargando horarios...</p>;
+  if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando horarios...</p></div>;
 
   const filteredSchedules = filterEmployeeId
     ? schedules?.filter((s) => s.employeeId === filterEmployeeId)
@@ -73,7 +74,7 @@ export function SchedulesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold">Horarios</h1>
         <Button onClick={() => { setIsModalOpen(true); }}>
           <Plus size={16} className="mr-2" />
@@ -94,11 +95,11 @@ export function SchedulesPage() {
       <div className="space-y-3">
         {filteredSchedules?.map((schedule) => (
           <Card key={schedule.id} className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-slate-100">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium text-slate-100 truncate">
                 {getEmployeeName(schedule.employeeId)}
               </p>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-400 truncate">
                 {days.find((d) => d.value === String(schedule.dayOfWeek))?.label} · {schedule.startTime} - {schedule.endTime}
               </p>
             </div>
@@ -129,7 +130,7 @@ export function SchedulesPage() {
             onChange={(e) => { setFormData({ ...formData, dayOfWeek: e.target.value }); }}
             options={days}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-slate-400">Hora inicio</label>
               <input
