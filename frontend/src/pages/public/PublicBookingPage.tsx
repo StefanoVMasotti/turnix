@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, ChevronLeft } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { Modal } from "../../components/ui/Modal";
 import { Spinner } from "../../components/ui/Spinner";
 import { ServiceCard } from "../../components/booking/ServiceCard";
 import { ProfessionalCard } from "../../components/booking/ProfessionalCard";
@@ -38,6 +39,7 @@ export function PublicBookingPage() {
   });
   const [formError, setFormError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const currency = landing?.settings.currency ?? "ARS";
   const service = landing?.services.find((s) => s.id === serviceId) ?? null;
@@ -79,6 +81,7 @@ export function PublicBookingPage() {
 
   function back() {
     setSubmitError("");
+    setShowConfirm(false);
     if (step === 2) setStep(1);
     else if (step === 3) setStep(2);
     else if (step === 4) setStep(3);
@@ -98,6 +101,12 @@ export function PublicBookingPage() {
 
     if (!service || !employee || !slot) return;
 
+    setShowConfirm(true);
+  }
+
+  function confirmBooking() {
+    if (!service || !employee || !slot) return;
+
     createAppointment.mutate(
       {
         serviceId: service.id,
@@ -113,6 +122,7 @@ export function PublicBookingPage() {
       },
       {
         onSuccess: (appointment) => {
+          setShowConfirm(false);
           setCreated(appointment);
           setStep(6);
         },
@@ -121,7 +131,7 @@ export function PublicBookingPage() {
             ?.status;
           setSubmitError(
             status === 409
-              ? "Ese horario ya no está disponible. Elegí otro."
+              ? "Ese horario ya no está disponible. Volvé y elegí otro."
               : "No se pudo confirmar la reserva. Intentalo de nuevo.",
           );
         },
@@ -351,11 +361,7 @@ export function PublicBookingPage() {
                   />
                   Volver
                 </Button>
-                <Button type="submit" disabled={createAppointment.isPending}>
-                  {createAppointment.isPending
-                    ? "Confirmando..."
-                    : "Confirmar turno"}
-                </Button>
+                <Button type="submit">Revisar y confirmar</Button>
               </div>
             </form>
           </div>
@@ -373,6 +379,59 @@ export function PublicBookingPage() {
           </div>
         </section>
       )}
+
+      <Modal
+        isOpen={showConfirm}
+        onClose={() => {
+          if (!createAppointment.isPending) {
+            setShowConfirm(false);
+            setSubmitError("");
+          }
+        }}
+        title="Confirmar turno"
+      >
+        {service && employee && slot && (
+          <>
+            <p className="mb-4 text-sm text-slate-400">
+              Revisá los datos de tu reserva antes de confirmar.
+            </p>
+            <AppointmentSummary
+              service={service}
+              employee={employee}
+              date={date}
+              slot={slot}
+              currency={currency}
+            />
+            <div className="mt-4 rounded-xl border border-border/60 bg-card px-4 py-3 text-sm">
+              <p className="font-medium text-slate-100">
+                {form.firstName} {form.lastName}
+              </p>
+              <p className="text-slate-400">
+                {form.phone}
+                {form.email.trim() ? ` · ${form.email.trim()}` : ""}
+              </p>
+            </div>
+          </>
+        )}
+        {submitError && (
+          <p className="mt-4 text-sm text-error">{submitError}</p>
+        )}
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowConfirm(false);
+              setSubmitError("");
+            }}
+            disabled={createAppointment.isPending}
+          >
+            Volver
+          </Button>
+          <Button onClick={confirmBooking} disabled={createAppointment.isPending}>
+            {createAppointment.isPending ? "Confirmando..." : "Confirmar turno"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

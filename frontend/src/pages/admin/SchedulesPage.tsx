@@ -6,6 +6,7 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 
 const days = [
   { value: "0", label: "Domingo" },
@@ -26,6 +27,7 @@ export function SchedulesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterEmployeeId, setFilterEmployeeId] = useState("");
   const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     employeeId: "",
     dayOfWeek: "1",
@@ -53,9 +55,14 @@ export function SchedulesPage() {
   }
 
   function handleDelete(id: string) {
-    if (confirm("¿Eliminar este horario?")) {
-      deleteSchedule.mutate(id);
-    }
+    setDeleteId(id);
+  }
+
+  function confirmDelete() {
+    if (!deleteId) return;
+    deleteSchedule.mutate(deleteId, {
+      onSettled: () => { setDeleteId(null); }
+    });
   }
 
   if (isLoading) return <p className="text-slate-400">Cargando horarios...</p>;
@@ -78,7 +85,7 @@ export function SchedulesPage() {
         <Select
           label="Filtrar por empleado"
           value={filterEmployeeId}
-          onChange={(e) => setFilterEmployeeId(e.target.value)}
+          onChange={(e) => { setFilterEmployeeId(e.target.value); }}
           options={employees?.map((e) => ({ value: e.id, label: `${e.firstName} ${e.lastName}` })) ?? []}
           placeholder="Todos los empleados"
         />
@@ -153,6 +160,17 @@ export function SchedulesPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => { if (!deleteSchedule.isPending) setDeleteId(null); }}
+        onConfirm={confirmDelete}
+        title="Eliminar horario"
+        description="¿Seguro que querés eliminar este horario? El empleado ya no estará disponible en ese día y franja."
+        confirmLabel="Sí, eliminar"
+        variant="danger"
+        loading={deleteSchedule.isPending}
+      />
     </div>
   );
 }

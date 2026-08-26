@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -20,6 +21,7 @@ export function BlocksPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     employeeId: "",
     blockDate: "",
@@ -47,9 +49,14 @@ export function BlocksPage() {
   }
 
   function handleDelete(id: string) {
-    if (confirm("¿Eliminar este bloqueo?")) {
-      deleteBlock.mutate(id);
-    }
+    setDeleteId(id);
+  }
+
+  function confirmDelete() {
+    if (!deleteId) return;
+    deleteBlock.mutate(deleteId, {
+      onSettled: () => { setDeleteId(null); }
+    });
   }
 
   if (isLoading) return <p className="text-slate-400">Cargando bloqueos...</p>;
@@ -140,6 +147,17 @@ export function BlocksPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => { if (!deleteBlock.isPending) setDeleteId(null); }}
+        onConfirm={confirmDelete}
+        title="Eliminar bloqueo"
+        description="¿Seguro que querés eliminar este bloqueo? El empleado volverá a estar disponible en ese horario."
+        confirmLabel="Sí, eliminar"
+        variant="danger"
+        loading={deleteBlock.isPending}
+      />
     </div>
   );
 }

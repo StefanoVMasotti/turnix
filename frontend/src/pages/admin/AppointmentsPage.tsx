@@ -9,6 +9,7 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { formatDate, formatTime, toLocalDateStr } from "../../utils/date";
 import type { Appointment } from "../../types/appointment";
 
@@ -26,6 +27,21 @@ const STATUS_VARIANTS: Record<string, "success" | "danger" | "warning" | "info">
   no_show: "warning"
 };
 
+const STATUS_CONFIRM_MESSAGES: Record<string, { message: string; action: string }> = {
+  completed: {
+    message: "¿Seguro que querés marcar este turno como completado?",
+    action: "Marcar como completado"
+  },
+  cancelled: {
+    message: "¿Seguro que querés cancelar este turno? El horario quedará libre para otros clientes.",
+    action: "Sí, cancelar turno"
+  },
+  no_show: {
+    message: "¿Seguro que querés marcar este turno como no asistió?",
+    action: "Marcar como no asistió"
+  }
+};
+
 export function AppointmentsPage() {
   const { data: appointments, isLoading } = useAppointments();
   const { data: services } = useServices();
@@ -39,6 +55,10 @@ export function AppointmentsPage() {
   const [error, setError] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [statusConfirm, setStatusConfirm] = useState<{
+    id: string;
+    status: "completed" | "cancelled" | "no_show";
+  } | null>(null);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -94,9 +114,15 @@ export function AppointmentsPage() {
   }
 
   function handleStatusChange(id: string, status: "completed" | "cancelled" | "no_show") {
-    const labels: Record<string, string> = { completed: "completado", cancelled: "cancelado", no_show: "no asistió" };
-    if (!confirm(`¿Marcar turno como ${labels[status]}?`)) return;
-    updateAppointment.mutate({ id, data: { status } });
+    setStatusConfirm({ id, status });
+  }
+
+  function confirmStatusChange() {
+    if (!statusConfirm) return;
+    updateAppointment.mutate(
+      { id: statusConfirm.id, data: { status: statusConfirm.status } },
+      { onSettled: () => { setStatusConfirm(null); } }
+    );
   }
 
   const filtered = appointments?.filter((apt) => {
@@ -274,6 +300,17 @@ export function AppointmentsPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={statusConfirm !== null}
+        onClose={() => { if (!updateAppointment.isPending) setStatusConfirm(null); }}
+        onConfirm={confirmStatusChange}
+        title="Cambiar estado del turno"
+        description={statusConfirm ? STATUS_CONFIRM_MESSAGES[statusConfirm.status].message : ""}
+        confirmLabel={statusConfirm ? STATUS_CONFIRM_MESSAGES[statusConfirm.status].action : "Confirmar"}
+        variant={statusConfirm?.status === "cancelled" ? "danger" : "primary"}
+        loading={updateAppointment.isPending}
+      />
     </div>
   );
 }
