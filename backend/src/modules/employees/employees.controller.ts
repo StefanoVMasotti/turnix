@@ -1,19 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { CurrentBusinessId } from "../../common/decorators/current-business.decorator";
-import { BusinessContextGuard } from "../../common/guards/business-context.guard";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { CurrentUser, AuthUser } from "../../common/decorators/current-user.decorator";
+import { JwtGuard } from "../../common/guards/jwt.guard";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import { UpdateEmployeeDto } from "./dto/update-employee.dto";
 import { EmployeeResponse } from "./entities/employee-response.entity";
 import { EmployeesService } from "./employees.service";
 
 @ApiTags("Employees")
-@ApiHeader({
-  name: "x-business-id",
-  description: "UUID del negocio actual",
-  required: true
-})
-@UseGuards(BusinessContextGuard)
+@ApiBearerAuth()
+@UseGuards(JwtGuard)
 @Controller("employees")
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
@@ -21,15 +17,15 @@ export class EmployeesController {
   @Get()
   @ApiOperation({ summary: "Listar empleados del negocio actual" })
   @ApiOkResponse({ type: [EmployeeResponse], description: "Lista de empleados." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
-  getAll(@CurrentBusinessId() businessId: string) {
-    return this.employeesService.getAll(businessId);
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
+  getAll(@CurrentUser() user: AuthUser) {
+    return this.employeesService.getAll(user.businessId);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Obtener un empleado por ID" })
   @ApiOkResponse({ type: EmployeeResponse, description: "Empleado encontrado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Empleado no encontrado." })
   getById(@Param("id") id: string) {
     return this.employeesService.getById(id);
@@ -38,19 +34,19 @@ export class EmployeesController {
   @Post()
   @ApiOperation({ summary: "Crear un nuevo empleado" })
   @ApiOkResponse({ type: EmployeeResponse, description: "Empleado creado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   create(
-    @CurrentBusinessId() businessId: string,
+    @CurrentUser() user: AuthUser,
     @Body() dto: CreateEmployeeDto
   ) {
-    return this.employeesService.create(businessId, dto);
+    return this.employeesService.create(user.businessId, dto);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Actualizar un empleado existente" })
   @ApiOkResponse({ type: EmployeeResponse, description: "Empleado actualizado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   @ApiNotFoundResponse({ description: "Empleado no encontrado." })
   update(
@@ -63,7 +59,7 @@ export class EmployeesController {
   @Delete(":id")
   @ApiOperation({ summary: "Desactivar un empleado (soft delete)" })
   @ApiOkResponse({ type: EmployeeResponse, description: "Empleado desactivado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Empleado no encontrado." })
   remove(@Param("id") id: string) {
     return this.employeesService.remove(id);
@@ -72,7 +68,7 @@ export class EmployeesController {
   @Patch(":id/toggle-active")
   @ApiOperation({ summary: "Activar o desactivar un empleado" })
   @ApiOkResponse({ type: EmployeeResponse, description: "Estado del empleado actualizado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Empleado no encontrado." })
   toggleActive(@Param("id") id: string) {
     return this.employeesService.toggleActive(id);

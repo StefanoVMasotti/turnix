@@ -1,19 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiConflictResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { CurrentBusinessId } from "../../common/decorators/current-business.decorator";
-import { BusinessContextGuard } from "../../common/guards/business-context.guard";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { CurrentUser, AuthUser } from "../../common/decorators/current-user.decorator";
+import { JwtGuard } from "../../common/guards/jwt.guard";
 import { CreateEmployeeServiceDto } from "./dto/create-employee-service.dto";
 import { UpdateEmployeeServiceDto } from "./dto/update-employee-service.dto";
 import { EmployeeServiceResponse } from "./entities/employee-service-response.entity";
 import { EmployeeServicesService } from "./employee-services.service";
 
 @ApiTags("Employee Services")
-@ApiHeader({
-  name: "x-business-id",
-  description: "UUID del negocio actual",
-  required: true
-})
-@UseGuards(BusinessContextGuard)
+@ApiBearerAuth()
+@UseGuards(JwtGuard)
 @Controller("employee-services")
 export class EmployeeServicesController {
   constructor(private readonly employeeServicesService: EmployeeServicesService) {}
@@ -21,15 +17,15 @@ export class EmployeeServicesController {
   @Get()
   @ApiOperation({ summary: "Listar asignaciones empleado-servicio del negocio" })
   @ApiOkResponse({ type: [EmployeeServiceResponse], description: "Lista de asignaciones." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
-  getAll(@CurrentBusinessId() businessId: string) {
-    return this.employeeServicesService.getAll(businessId);
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
+  getAll(@CurrentUser() user: AuthUser) {
+    return this.employeeServicesService.getAll(user.businessId);
   }
 
   @Post()
   @ApiOperation({ summary: "Asignar un servicio a un empleado" })
   @ApiOkResponse({ type: EmployeeServiceResponse, description: "Asignación creada." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   @ApiConflictResponse({ description: "El empleado ya tiene asignado este servicio." })
   create(@Body() dto: CreateEmployeeServiceDto) {
@@ -41,7 +37,7 @@ export class EmployeeServicesController {
   @ApiOkResponse({ type: EmployeeServiceResponse, description: "Asignación actualizada." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   @ApiNotFoundResponse({ description: "Relación empleado-servicio no encontrada." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   update(@Param("id") id: string, @Body() dto: UpdateEmployeeServiceDto) {
     return this.employeeServicesService.update(id, dto);
   }
@@ -50,7 +46,7 @@ export class EmployeeServicesController {
   @ApiOperation({ summary: "Activar o desactivar una asignación" })
   @ApiOkResponse({ type: EmployeeServiceResponse, description: "Estado actualizado." })
   @ApiNotFoundResponse({ description: "Relación empleado-servicio no encontrada." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   toggleActive(@Param("id") id: string) {
     return this.employeeServicesService.toggleActive(id);
   }
@@ -58,7 +54,7 @@ export class EmployeeServicesController {
   @Delete(":id")
   @ApiOperation({ summary: "Desactivar una asignación (soft delete)" })
   @ApiOkResponse({ type: EmployeeServiceResponse, description: "Asignación desactivada." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Relación empleado-servicio no encontrada." })
   remove(@Param("id") id: string) {
     return this.employeeServicesService.remove(id);

@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 const businessId = "11111111-1111-4111-8111-111111111111";
 const settingsId = "22222222-2222-4222-8222-222222222222";
+const userId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const employeeId = "33333333-3333-4333-8333-333333333333";
 const secondEmployeeId = "44444444-4444-4444-8444-444444444444";
 const haircutServiceId = "55555555-5555-4555-8555-555555555555";
@@ -16,11 +17,16 @@ const scheduleIds = [
   "99999999-9999-4999-8999-999999999993",
   "99999999-9999-4999-8999-999999999994",
   "99999999-9999-4999-8999-999999999995",
-  "99999999-9999-4999-8999-999999999996"
+  "99999999-9999-4999-8999-999999999996",
 ];
 
+// NOTA: El usuario owner debe crearse primero en Supabase Auth.
+// Usar el endpoint POST /auth/login o crear desde el panel de Supabase.
+// El authUserId debe coincidir con el ID del usuario en Supabase Auth.
+// Para testing, se usa un UUID ficticio que debe reemplazarse por el real.
+
 function time(value) {
-  return new Date(`1970-01-01T${value}:00.000Z`);
+  return `${value}:00`;
 }
 
 async function main() {
@@ -31,7 +37,7 @@ async function main() {
       slug: "turnix-demo",
       phone: "+54 11 5555-5555",
       email: "demo@turnix.app",
-      address: "Av. Corrientes 1234"
+      address: "Av. Corrientes 1234",
     },
     create: {
       id: businessId,
@@ -39,8 +45,8 @@ async function main() {
       slug: "turnix-demo",
       phone: "+54 11 5555-5555",
       email: "demo@turnix.app",
-      address: "Av. Corrientes 1234"
-    }
+      address: "Av. Corrientes 1234",
+    },
   });
 
   await prisma.businessSettings.upsert({
@@ -49,7 +55,7 @@ async function main() {
       timezone: "America/Buenos_Aires",
       currency: "ARS",
       bufferMinutes: 0,
-      maxBookingDays: 30
+      maxBookingDays: 30,
     },
     create: {
       id: settingsId,
@@ -57,8 +63,28 @@ async function main() {
       timezone: "America/Buenos_Aires",
       currency: "ARS",
       bufferMinutes: 0,
-      maxBookingDays: 30
-    }
+      maxBookingDays: 30,
+    },
+  });
+
+  // Usuario owner de prueba
+  // NOTA: El authUserId debe coincidir con el ID del usuario en Supabase Auth
+  await prisma.user.upsert({
+    where: { id: userId },
+    update: {
+      name: "Admin Demo",
+      email: "admin@turnix.app",
+      role: "owner",
+      active: true,
+    },
+    create: {
+      id: userId,
+      businessId,
+      authUserId: "8323aa91-992a-424f-be9c-897437e05e40", // Reemplazar con el ID real de Supabase Auth
+      name: "Admin Demo",
+      email: "admin@turnix.app",
+      role: "owner",
+    },
   });
 
   await prisma.service.upsert({
@@ -66,15 +92,15 @@ async function main() {
     update: {
       name: "Corte clásico",
       description: "Corte masculino tradicional.",
-      durationMinutes: 30
+      durationMinutes: 30,
     },
     create: {
       id: haircutServiceId,
       businessId,
       name: "Corte clásico",
       description: "Corte masculino tradicional.",
-      durationMinutes: 30
-    }
+      durationMinutes: 30,
+    },
   });
 
   await prisma.service.upsert({
@@ -82,15 +108,15 @@ async function main() {
     update: {
       name: "Perfilado de barba",
       description: "Perfilado y terminación de barba.",
-      durationMinutes: 30
+      durationMinutes: 30,
     },
     create: {
       id: beardServiceId,
       businessId,
       name: "Perfilado de barba",
       description: "Perfilado y terminación de barba.",
-      durationMinutes: 30
-    }
+      durationMinutes: 30,
+    },
   });
 
   await prisma.employee.upsert({
@@ -99,7 +125,7 @@ async function main() {
       firstName: "Alex",
       lastName: "Ruiz",
       phone: "+54 11 5555-1111",
-      email: "alex@turnix.app"
+      email: "alex@turnix.app",
     },
     create: {
       id: employeeId,
@@ -107,8 +133,8 @@ async function main() {
       firstName: "Alex",
       lastName: "Ruiz",
       phone: "+54 11 5555-1111",
-      email: "alex@turnix.app"
-    }
+      email: "alex@turnix.app",
+    },
   });
 
   await prisma.employee.upsert({
@@ -117,7 +143,7 @@ async function main() {
       firstName: "Sofía",
       lastName: "Molina",
       phone: "+54 11 5555-2222",
-      email: "sofia@turnix.app"
+      email: "sofia@turnix.app",
     },
     create: {
       id: secondEmployeeId,
@@ -125,77 +151,113 @@ async function main() {
       firstName: "Sofía",
       lastName: "Molina",
       phone: "+54 11 5555-2222",
-      email: "sofia@turnix.app"
-    }
+      email: "sofia@turnix.app",
+    },
   });
 
   await prisma.employeeService.upsert({
     where: {
       employeeId_serviceId: {
         employeeId,
-        serviceId: haircutServiceId
-      }
+        serviceId: haircutServiceId,
+      },
     },
     update: { active: true, price: "8000" },
     create: {
       employeeId,
       serviceId: haircutServiceId,
-      price: "8000"
-    }
+      price: "8000",
+    },
   });
 
   await prisma.employeeService.upsert({
     where: {
       employeeId_serviceId: {
         employeeId: secondEmployeeId,
-        serviceId: beardServiceId
-      }
+        serviceId: beardServiceId,
+      },
     },
     update: { active: true, price: "6000" },
     create: {
       employeeId: secondEmployeeId,
       serviceId: beardServiceId,
-      price: "6000"
-    }
+      price: "6000",
+    },
   });
 
   await prisma.employeeService.upsert({
     where: {
       employeeId_serviceId: {
         employeeId,
-        serviceId: beardServiceId
-      }
+        serviceId: beardServiceId,
+      },
     },
     update: { active: true, price: "6000" },
     create: {
       employeeId,
       serviceId: beardServiceId,
-      price: "6000"
-    }
+      price: "6000",
+    },
   });
 
   await prisma.employeeService.upsert({
     where: {
       employeeId_serviceId: {
         employeeId: secondEmployeeId,
-        serviceId: haircutServiceId
-      }
+        serviceId: haircutServiceId,
+      },
     },
     update: { active: true, price: "8000" },
     create: {
       employeeId: secondEmployeeId,
       serviceId: haircutServiceId,
-      price: "8000"
-    }
+      price: "8000",
+    },
   });
 
   const schedules = [
-    { id: scheduleIds[0], employeeId, dayOfWeek: 1, startTime: time("09:00"), endTime: time("17:00") },
-    { id: scheduleIds[1], employeeId, dayOfWeek: 2, startTime: time("09:00"), endTime: time("17:00") },
-    { id: scheduleIds[2], employeeId, dayOfWeek: 3, startTime: time("09:00"), endTime: time("17:00") },
-    { id: scheduleIds[3], employeeId: secondEmployeeId, dayOfWeek: 1, startTime: time("10:00"), endTime: time("18:00") },
-    { id: scheduleIds[4], employeeId: secondEmployeeId, dayOfWeek: 2, startTime: time("10:00"), endTime: time("18:00") },
-    { id: scheduleIds[5], employeeId: secondEmployeeId, dayOfWeek: 3, startTime: time("10:00"), endTime: time("18:00") }
+    {
+      id: scheduleIds[0],
+      employeeId,
+      dayOfWeek: 1,
+      startTime: time("09:00"),
+      endTime: time("17:00"),
+    },
+    {
+      id: scheduleIds[1],
+      employeeId,
+      dayOfWeek: 2,
+      startTime: time("09:00"),
+      endTime: time("17:00"),
+    },
+    {
+      id: scheduleIds[2],
+      employeeId,
+      dayOfWeek: 3,
+      startTime: time("09:00"),
+      endTime: time("17:00"),
+    },
+    {
+      id: scheduleIds[3],
+      employeeId: secondEmployeeId,
+      dayOfWeek: 1,
+      startTime: time("10:00"),
+      endTime: time("18:00"),
+    },
+    {
+      id: scheduleIds[4],
+      employeeId: secondEmployeeId,
+      dayOfWeek: 2,
+      startTime: time("10:00"),
+      endTime: time("18:00"),
+    },
+    {
+      id: scheduleIds[5],
+      employeeId: secondEmployeeId,
+      dayOfWeek: 3,
+      startTime: time("10:00"),
+      endTime: time("18:00"),
+    },
   ];
 
   for (const schedule of schedules) {
@@ -205,9 +267,9 @@ async function main() {
         employeeId: schedule.employeeId,
         dayOfWeek: schedule.dayOfWeek,
         startTime: schedule.startTime,
-        endTime: schedule.endTime
+        endTime: schedule.endTime,
       },
-      create: schedule
+      create: schedule,
     });
   }
 
@@ -217,7 +279,7 @@ async function main() {
       firstName: "Cliente",
       lastName: "Demo",
       phone: "+54 11 5555-9999",
-      email: "cliente.demo@turnix.app"
+      email: "cliente.demo@turnix.app",
     },
     create: {
       id: clientId,
@@ -225,8 +287,8 @@ async function main() {
       firstName: "Cliente",
       lastName: "Demo",
       phone: "+54 11 5555-9999",
-      email: "cliente.demo@turnix.app"
-    }
+      email: "cliente.demo@turnix.app",
+    },
   });
 
   await prisma.appointment.upsert({
@@ -236,7 +298,7 @@ async function main() {
       startTime: time("10:00"),
       endTime: time("10:30"),
       status: "scheduled",
-      bookingSource: "web"
+      bookingSource: "web",
     },
     create: {
       id: appointmentId,
@@ -248,8 +310,8 @@ async function main() {
       startTime: time("10:00"),
       endTime: time("10:30"),
       status: "scheduled",
-      bookingSource: "web"
-    }
+      bookingSource: "web",
+    },
   });
 }
 

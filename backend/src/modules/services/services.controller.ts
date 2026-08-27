@@ -1,19 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiHeader, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { CurrentBusinessId } from "../../common/decorators/current-business.decorator";
-import { BusinessContextGuard } from "../../common/guards/business-context.guard";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { CurrentUser, AuthUser } from "../../common/decorators/current-user.decorator";
+import { JwtGuard } from "../../common/guards/jwt.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { ServiceResponse } from "./entities/service-response.entity";
 import { ServicesService } from "./services.service";
 
 @ApiTags("Services")
-@ApiHeader({
-  name: "x-business-id",
-  description: "UUID del negocio actual",
-  required: true
-})
-@UseGuards(BusinessContextGuard)
+@ApiBearerAuth()
+@UseGuards(JwtGuard)
 @Controller("services")
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
@@ -21,27 +17,27 @@ export class ServicesController {
   @Get()
   @ApiOperation({ summary: "Listar servicios del negocio actual" })
   @ApiOkResponse({ type: [ServiceResponse], description: "Lista de servicios." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
-  getAll(@CurrentBusinessId() businessId: string) {
-    return this.servicesService.getAll(businessId);
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
+  getAll(@CurrentUser() user: AuthUser) {
+    return this.servicesService.getAll(user.businessId);
   }
 
   @Post()
   @ApiOperation({ summary: "Crear un nuevo servicio" })
   @ApiOkResponse({ type: ServiceResponse, description: "Servicio creado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   create(
-    @CurrentBusinessId() businessId: string,
+    @CurrentUser() user: AuthUser,
     @Body() dto: CreateServiceDto
   ) {
-    return this.servicesService.create(businessId, dto);
+    return this.servicesService.create(user.businessId, dto);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Actualizar un servicio existente" })
   @ApiOkResponse({ type: ServiceResponse, description: "Servicio actualizado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiBadRequestResponse({ description: "Datos inválidos." })
   @ApiNotFoundResponse({ description: "Servicio no encontrado." })
   update(
@@ -54,7 +50,7 @@ export class ServicesController {
   @Delete(":id")
   @ApiOperation({ summary: "Desactivar un servicio (soft delete)" })
   @ApiOkResponse({ type: ServiceResponse, description: "Servicio desactivado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Servicio no encontrado." })
   remove(@Param("id") id: string) {
     return this.servicesService.remove(id);
@@ -63,7 +59,7 @@ export class ServicesController {
   @Patch(":id/toggle-active")
   @ApiOperation({ summary: "Activar o desactivar un servicio" })
   @ApiOkResponse({ type: ServiceResponse, description: "Estado del servicio actualizado." })
-  @ApiUnauthorizedResponse({ description: "Header x-business-id requerido o inválido." })
+  @ApiUnauthorizedResponse({ description: "Token requerido." })
   @ApiNotFoundResponse({ description: "Servicio no encontrado." })
   toggleActive(@Param("id") id: string) {
     return this.servicesService.toggleActive(id);
