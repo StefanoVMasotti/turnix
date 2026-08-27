@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { App } from "../App";
 import { AdminLayout } from "../layouts/AdminLayout";
 import { PublicLayout } from "../layouts/PublicLayout";
+import { ProtectedRoute } from "../components/auth/ProtectedRoute";
+import { LoginPage } from "../pages/auth/LoginPage";
 import { DashboardPage } from "../pages/admin/DashboardPage";
 import { ServicesPage } from "../pages/admin/ServicesPage";
 import { EmployeesPage } from "../pages/admin/EmployeesPage";
@@ -33,8 +35,16 @@ export const router = createBrowserRouter([
         ]
       },
       {
+        path: "/login",
+        element: <LoginPage />
+      },
+      {
         path: "/admin",
-        element: <AdminLayout />,
+        element: (
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        ),
         children: [
           {
             index: true,

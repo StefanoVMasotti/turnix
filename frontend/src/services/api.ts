@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useBusinessStore } from "../store/business.store";
+import { useAuthStore } from "../store/auth.store";
 
 const apiUrl: string = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
@@ -11,11 +11,21 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const businessId = useBusinessStore.getState().businessId;
+  const token = useAuthStore.getState().token;
 
-  if (businessId) {
-    config.headers["x-business-id"] = businessId;
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);

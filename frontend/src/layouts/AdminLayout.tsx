@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Users, UserCog, Link2, Calendar, CalendarDays, Clock, Ban, Settings, ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { LayoutDashboard, Wrench, Users, UserCog, Link2, Calendar, CalendarDays, Clock, Ban, Settings, ChevronLeft, ChevronRight, Menu, LogOut } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
   { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -20,6 +21,7 @@ export function AdminLayout() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -80,6 +82,34 @@ export function AdminLayout() {
             );
           })}
         </nav>
+
+        {user && (
+          <div className="border-t border-border p-3">
+            {!collapsed ? (
+              <div className="flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-200 truncate">{user.name}</p>
+                  <p className="text-xs text-slate-400 capitalize">{user.role}</p>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-slate-400 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-card"
+                  title="Cerrar sesión"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={logout}
+                className="w-full flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-card"
+                title="Cerrar sesión"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
+          </div>
+        )}
       </aside>
 
       <main className="flex-1 overflow-auto min-w-0">
