@@ -148,14 +148,15 @@ Dentro de `docs/` se encuentra toda la documentación del proyecto.
 
 ## Roadmap
 
-- [ ] Configuración inicial
-- [ ] Autenticación
-- [ ] Gestión de servicios
-- [ ] Gestión de empleados
-- [ ] Gestión de horarios
-- [ ] Gestión de clientes
-- [ ] Gestión de turnos
-- [ ] Dashboard
+- [x] Configuración inicial
+- [x] Autenticación
+- [x] Gestión de servicios
+- [x] Gestión de empleados
+- [x] Gestión de horarios
+- [x] Gestión de clientes
+- [x] Gestión de turnos
+- [x] Dashboard
+- [x] Reserva pública
 - [ ] Integración con WhatsApp
 - [ ] Automatizaciones con n8n
 

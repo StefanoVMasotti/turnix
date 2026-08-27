@@ -18,6 +18,8 @@ Backend:
 - NestJS
 - PostgreSQL
 - Supabase
+- Supabase Auth (autenticación)
+- Prisma ORM
 
 Arquitectura:
 

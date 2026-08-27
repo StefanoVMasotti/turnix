@@ -1,14 +1,22 @@
 # API
 
-> La API usa el prefijo global `/api`. Los endpoints del panel administrativo requieren el header `x-business-id`. Los endpoints públicos se identifican por el `slug` del negocio y no requieren autenticación.
+> La API usa el prefijo global `/api`. Los endpoints del panel administrativo requieren el header `Authorization: Bearer <token>`. Los endpoints públicos se identifican por el `slug` del negocio y no requieren autenticación.
 
 ## Auth
 
 POST /auth/login
 
+- Recibe `email` + `password`.
+- Retorna `{ access_token, user }`.
+
 POST /auth/logout
 
+- Requiere autenticación.
+
 GET /auth/profile
+
+- Requiere autenticación.
+- Retorna datos del usuario autenticado.
 
 ---
 
@@ -58,6 +66,8 @@ PUT /employees/:id
 
 DELETE /employees/:id
 
+PATCH /employees/:id/toggle-active
+
 ---
 
 ## Services
@@ -70,6 +80,8 @@ PUT /services/:id
 
 DELETE /services/:id
 
+PATCH /services/:id/toggle-active
+
 ---
 
 ## Employee Services
@@ -77,6 +89,10 @@ DELETE /services/:id
 GET /employee-services
 
 POST /employee-services
+
+PUT /employee-services/:id
+
+PATCH /employee-services/:id/toggle-active
 
 DELETE /employee-services/:id
 
@@ -100,6 +116,8 @@ GET /time-off
 
 POST /time-off
 
+PUT /time-off/:id (pendiente)
+
 DELETE /time-off/:id
 
 ---
@@ -109,6 +127,8 @@ DELETE /time-off/:id
 GET /blocks
 
 POST /blocks
+
+PUT /blocks/:id (pendiente)
 
 DELETE /blocks/:id
 
@@ -137,3 +157,25 @@ POST /appointments
 PUT /appointments/:id
 
 DELETE /appointments/:id
+
+---
+
+## Users
+
+GET /users
+
+- Requiere rol `owner`.
+
+GET /users/:id
+
+- Requiere rol `owner`.
+
+POST /users
+
+- Requiere rol `owner`.
+- Recibe `authUserId`, `name`, `email`, `role`, `businessId`.
+
+DELETE /users/:id
+
+- Requiere rol `owner`.
+- Soft delete (desactiva el usuario).

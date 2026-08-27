@@ -25,10 +25,10 @@
 
 ## Fase 3 - Autenticación
 
-- [ ] Login administrador
-- [ ] Protección de rutas
-- [ ] JWT
-- [ ] Roles
+- [x] Login administrador
+- [x] Protección de rutas
+- [x] JWT
+- [x] Roles
 
 ---
 
@@ -54,11 +54,13 @@
 - [x] Horarios semanales
 - [x] Bloqueos
 - [x] Ausencias
+- [ ] Editar desde UI
 
 ### Clientes
 
 - [x] Listado
 - [x] Historial
+- [ ] Eliminar
 
 ### Turnos
 
@@ -67,15 +69,19 @@
 - [x] Editar
 - [x] Cancelar
 
+### Comunes
+
+- [ ] Paginación y búsqueda
+
 ---
 
 ## Fase 5 - Reserva Pública
 
-- [ ] Landing
-- [ ] Selección de servicio
-- [ ] Selección de profesional
-- [ ] Calendario
-- [ ] Confirmación
+- [x] Landing
+- [x] Selección de servicio
+- [x] Selección de profesional
+- [x] Calendario
+- [x] Confirmación
 
 ---
 
@@ -86,6 +92,7 @@
 - [ ] n8n
 - [ ] Google Calendar
 - [ ] Dashboard avanzado
+- [ ] Tests
 
 ---
 
