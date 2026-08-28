@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as serviceService from "../services/service.service";
 
 export function useServices() {
@@ -15,6 +16,10 @@ export function useCreateService() {
     mutationFn: serviceService.createService,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Servicio creado");
+    },
+    onError: () => {
+      toast.error("Error al crear el servicio");
     }
   });
 }
@@ -27,6 +32,10 @@ export function useUpdateService() {
       serviceService.updateService(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Servicio actualizado");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el servicio");
     }
   });
 }
@@ -38,6 +47,10 @@ export function useDeleteService() {
     mutationFn: serviceService.deleteService,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Servicio eliminado");
+    },
+    onError: () => {
+      toast.error("Error al eliminar el servicio");
     }
   });
 }
@@ -49,6 +62,10 @@ export function useToggleServiceActive() {
     mutationFn: serviceService.toggleServiceActive,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Servicio actualizado");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el servicio");
     }
   });
 }

@@ -43,7 +43,6 @@ export function ClientsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [error, setError] = useState("");
   const [historyClientId, setHistoryClientId] = useState<string | null>(null);
   const { data: historyAppointments, isLoading: historyLoading } = useAppointments(historyClientId ?? undefined);
 
@@ -75,16 +74,13 @@ export function ClientsPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     if (editingClient) {
       updateClient.mutate({ id: editingClient.id, data: formData }, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al actualizar el cliente"); }
       });
     } else {
       createClient.mutate(formData, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al crear el cliente"); }
       });
     }
   }
@@ -127,7 +123,7 @@ export function ClientsPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title={editingClient ? "Editar Cliente" : "Nuevo Cliente"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -154,9 +150,8 @@ export function ClientsPage() {
             value={formData.phone}
             onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); }}
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createClient.isPending || updateClient.isPending}>

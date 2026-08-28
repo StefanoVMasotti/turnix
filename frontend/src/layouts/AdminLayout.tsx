@@ -3,6 +3,8 @@ import { LayoutDashboard, Wrench, Users, UserCog, Link2, Calendar, CalendarDays,
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { toast } from "sonner";
 
 const navItems = [
   { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -21,7 +23,13 @@ export function AdminLayout() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const { user, logout } = useAuth();
+
+  function handleLogout() {
+    toast.success("Sesión cerrada");
+    logout();
+  }
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -92,7 +100,7 @@ export function AdminLayout() {
                   <p className="text-xs text-slate-400 capitalize">{user.role}</p>
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={() => { setShowLogoutConfirm(true); }}
                   className="text-slate-400 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-card"
                   title="Cerrar sesión"
                 >
@@ -101,7 +109,7 @@ export function AdminLayout() {
               </div>
             ) : (
               <button
-                onClick={logout}
+                onClick={() => { setShowLogoutConfirm(true); }}
                 className="w-full flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-card"
                 title="Cerrar sesión"
               >
@@ -126,6 +134,16 @@ export function AdminLayout() {
           <Outlet />
         </div>
       </main>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => { setShowLogoutConfirm(false); }}
+        onConfirm={handleLogout}
+        title="Cerrar sesión"
+        description="¿Estás seguro que deseas cerrar sesión?"
+        confirmLabel="Cerrar sesión"
+        variant="danger"
+      />
     </div>
   );
 }

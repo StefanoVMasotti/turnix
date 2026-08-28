@@ -27,7 +27,6 @@ export function SchedulesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterEmployeeId, setFilterEmployeeId] = useState("");
-  const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -43,7 +42,6 @@ export function SchedulesPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     createSchedule.mutate({
       ...formData,
       dayOfWeek: Number(formData.dayOfWeek),
@@ -51,7 +49,6 @@ export function SchedulesPage() {
       endTime: formData.endTime + ":00"
     }, {
       onSuccess: () => { setIsModalOpen(false); },
-      onError: () => { setError("Error al crear el horario"); }
     });
   }
 
@@ -112,7 +109,7 @@ export function SchedulesPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title="Nuevo Horario"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,9 +147,8 @@ export function SchedulesPage() {
               />
             </div>
           </div>
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createSchedule.isPending}>

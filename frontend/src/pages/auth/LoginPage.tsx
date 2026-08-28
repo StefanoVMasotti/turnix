@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { useAuthStore } from "../../store/auth.store";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -7,21 +9,21 @@ import { Input } from "../../components/ui/Input";
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
       await login(email, password);
+      toast.success("Sesión iniciada");
       navigate("/admin");
     } catch {
-      setError("Credenciales inválidas.");
+      toast.error("Credenciales inválidas");
     } finally {
       setLoading(false);
     }
@@ -45,18 +47,23 @@ export function LoginPage() {
             required
           />
 
-          <Input
-            label="Contraseña"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); }}
-            required
-          />
-
-          {error && (
-            <p className="text-sm text-red-400">{error}</p>
-          )}
+          <div className="relative">
+            <Input
+              label="Contraseña"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); }}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => { setShowPassword(!showPassword); }}
+              className="absolute right-3 top-[34px] text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
 
           <Button
             type="submit"

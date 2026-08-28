@@ -53,7 +53,6 @@ export function AppointmentsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
-  const [error, setError] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [statusConfirm, setStatusConfirm] = useState<{
@@ -93,7 +92,6 @@ export function AppointmentsPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
 
     const payload = {
       ...formData,
@@ -104,12 +102,10 @@ export function AppointmentsPage() {
     if (editing) {
       updateAppointment.mutate({ id: editing.id, data: payload }, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al actualizar el turno"); }
       });
     } else {
       createAppointment.mutate(payload, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al crear el turno"); }
       });
     }
   }
@@ -216,7 +212,7 @@ export function AppointmentsPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title={editing ? "Editar Turno" : "Nuevo Turno"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -290,9 +286,8 @@ export function AppointmentsPage() {
             value={formData.notes}
             onChange={(e) => { setFormData({ ...formData, notes: e.target.value }); }}
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createAppointment.isPending || updateAppointment.isPending}>

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as employeeService from "../services/employee.service";
 
 export function useEmployees() {
@@ -15,6 +16,10 @@ export function useCreateEmployee() {
     mutationFn: employeeService.createEmployee,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Empleado creado");
+    },
+    onError: () => {
+      toast.error("Error al crear el empleado");
     }
   });
 }
@@ -27,6 +32,10 @@ export function useUpdateEmployee() {
       employeeService.updateEmployee(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Empleado actualizado");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el empleado");
     }
   });
 }
@@ -38,6 +47,10 @@ export function useDeleteEmployee() {
     mutationFn: employeeService.deleteEmployee,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Empleado eliminado");
+    },
+    onError: () => {
+      toast.error("Error al eliminar el empleado");
     }
   });
 }
@@ -49,6 +62,10 @@ export function useToggleEmployeeActive() {
     mutationFn: employeeService.toggleEmployeeActive,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Empleado actualizado");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el empleado");
     }
   });
 }

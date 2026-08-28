@@ -21,7 +21,6 @@ export function TimeOffPage() {
   const deleteTimeOff = useDeleteTimeOff();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -37,10 +36,8 @@ export function TimeOffPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     createTimeOff.mutate(formData, {
       onSuccess: () => { setIsModalOpen(false); },
-      onError: () => { setError("Error al crear el permiso"); }
     });
   }
 
@@ -87,7 +84,7 @@ export function TimeOffPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title="Nuevo Permiso"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -118,9 +115,8 @@ export function TimeOffPage() {
             value={formData.reason}
             onChange={(e) => { setFormData({ ...formData, reason: e.target.value }); }}
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createTimeOff.isPending}>

@@ -22,7 +22,6 @@ export function EmployeeServicesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<EmployeeService | null>(null);
-  const [error, setError] = useState("");
   const [toggleId, setToggleId] = useState<string | null>(null);
   const [employeeId, setEmployeeId] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -33,7 +32,6 @@ export function EmployeeServicesPage() {
     setEmployeeId("");
     setServiceId("");
     setPrice(0);
-    setError("");
   }
 
   function openCreateModal() {
@@ -46,26 +44,22 @@ export function EmployeeServicesPage() {
     setEmployeeId(assignment.employeeId);
     setServiceId(assignment.serviceId);
     setPrice(assignment.price);
-    setError("");
     setIsModalOpen(true);
   }
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     if (editingAssignment) {
       updateAssignment.mutate(
         { id: editingAssignment.id, data: { price } },
         {
           onSuccess: () => { setIsModalOpen(false); resetForm(); },
-          onError: () => { setError("Error al actualizar el precio."); }
         }
       );
       return;
     }
     createAssignment.mutate({ employeeId, serviceId, price }, {
       onSuccess: () => { setIsModalOpen(false); resetForm(); },
-      onError: () => { setError("Error al asignar servicio. Puede que ya exista esta asignación."); }
     });
   }
 
@@ -185,7 +179,6 @@ export function EmployeeServicesPage() {
             onChange={(e) => { setPrice(Number(e.target.value)); }}
             required
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); resetForm(); }}>
               Cancelar

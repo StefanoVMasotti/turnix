@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as timeOffService from "../services/time-off.service";
 
 export function useTimeOff() {
@@ -15,6 +16,10 @@ export function useCreateTimeOff() {
     mutationFn: timeOffService.createTimeOff,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["timeOff"] });
+      toast.success("Permiso creado");
+    },
+    onError: () => {
+      toast.error("Error al crear el permiso");
     }
   });
 }
@@ -26,6 +31,10 @@ export function useDeleteTimeOff() {
     mutationFn: timeOffService.deleteTimeOff,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["timeOff"] });
+      toast.success("Permiso eliminado");
+    },
+    onError: () => {
+      toast.error("Error al eliminar el permiso");
     }
   });
 }

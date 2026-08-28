@@ -25,8 +25,6 @@ export function BusinessSettingsPage() {
     timezone: "America/Buenos_Aires",
     currency: "ARS"
   });
-  const [businessMessage, setBusinessMessage] = useState("");
-  const [settingsMessage, setSettingsMessage] = useState("");
 
   useEffect(() => {
     if (business) {
@@ -53,20 +51,12 @@ export function BusinessSettingsPage() {
 
   function handleBusinessSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setBusinessMessage("");
-    updateBusiness.mutate(businessForm, {
-      onSuccess: () => { setBusinessMessage("Guardado correctamente"); },
-      onError: () => { setBusinessMessage("Error al guardar"); }
-    });
+    updateBusiness.mutate(businessForm);
   }
 
   function handleSettingsSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setSettingsMessage("");
-    updateSettings.mutate(settingsForm, {
-      onSuccess: () => { setSettingsMessage("Guardado correctamente"); },
-      onError: () => { setSettingsMessage("Error al guardar"); }
-    });
+    updateSettings.mutate(settingsForm);
   }
 
   if (isLoadingBusiness || isLoadingSettings) {
@@ -107,7 +97,6 @@ export function BusinessSettingsPage() {
               value={businessForm.address}
               onChange={(e) => { setBusinessForm({ ...businessForm, address: e.target.value }); }}
             />
-            {businessMessage && <p className={`text-sm ${businessMessage.includes("Error") ? "text-error" : "text-success"}`}>{businessMessage}</p>}
             <div className="flex justify-end">
               <Button type="submit" disabled={updateBusiness.isPending}>
                 Guardar
@@ -140,7 +129,6 @@ export function BusinessSettingsPage() {
               value={settingsForm.currency}
               onChange={(e) => { setSettingsForm({ ...settingsForm, currency: e.target.value }); }}
             />
-            {settingsMessage && <p className={`text-sm ${settingsMessage.includes("Error") ? "text-error" : "text-success"}`}>{settingsMessage}</p>}
             <div className="flex justify-end">
               <Button type="submit" disabled={updateSettings.isPending}>
                 Guardar

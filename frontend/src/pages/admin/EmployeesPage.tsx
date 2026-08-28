@@ -18,7 +18,6 @@ export function EmployeesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [error, setError] = useState("");
   const [toggleId, setToggleId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -46,16 +45,13 @@ export function EmployeesPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     if (editingEmployee) {
       updateEmployee.mutate({ id: editingEmployee.id, data: formData }, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al actualizar el empleado"); }
       });
     } else {
       createEmployee.mutate(formData, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al crear el empleado"); }
       });
     }
   }
@@ -130,7 +126,7 @@ export function EmployeesPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title={editingEmployee ? "Editar Empleado" : "Nuevo Empleado"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -157,9 +153,8 @@ export function EmployeesPage() {
             value={formData.phone}
             onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); }}
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createEmployee.isPending || updateEmployee.isPending}>

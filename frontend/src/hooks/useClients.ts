@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as clientService from "../services/client.service";
 
 export function useClients() {
@@ -15,6 +16,10 @@ export function useCreateClient() {
     mutationFn: clientService.createClient,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast.success("Cliente creado");
+    },
+    onError: () => {
+      toast.error("Error al crear el cliente");
     }
   });
 }
@@ -27,6 +32,10 @@ export function useUpdateClient() {
       clientService.updateClient(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast.success("Cliente actualizado");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el cliente");
     }
   });
 }

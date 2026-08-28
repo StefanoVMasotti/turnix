@@ -18,7 +18,6 @@ export function ServicesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-  const [error, setError] = useState("");
   const [toggleId, setToggleId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -44,16 +43,13 @@ export function ServicesPage() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    setError("");
     if (editingService) {
       updateService.mutate({ id: editingService.id, data: formData }, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al actualizar el servicio"); }
       });
     } else {
       createService.mutate(formData, {
         onSuccess: () => { setIsModalOpen(false); },
-        onError: () => { setError("Error al crear el servicio"); }
       });
     }
   }
@@ -128,7 +124,7 @@ export function ServicesPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setError(""); }}
+        onClose={() => { setIsModalOpen(false); }}
         title={editingService ? "Editar Servicio" : "Nuevo Servicio"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,9 +146,8 @@ export function ServicesPage() {
             onChange={(e) => { setFormData({ ...formData, durationMinutes: Number(e.target.value) }); }}
             required
           />
-          {error && <p className="text-sm text-error">{error}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); setError(""); }}>
+            <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>
               Cancelar
             </Button>
             <Button type="submit" disabled={createService.isPending || updateService.isPending}>
