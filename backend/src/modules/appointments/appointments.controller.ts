@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { CurrentUser, AuthUser } from "../../common/decorators/current-user.decorator";
+import { Roles } from "../../common/decorators/roles.decorator";
 import { JwtGuard } from "../../common/guards/jwt.guard";
+import { RolesGuard } from "../../common/guards/roles.guard";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 import { AppointmentResponse } from "./entities/appointment-response.entity";
@@ -9,12 +11,13 @@ import { AppointmentsService } from "./appointments.service";
 
 @ApiTags("Appointments")
 @ApiBearerAuth()
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard, RolesGuard)
 @Controller("appointments")
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Get()
+  @Roles("owner", "admin")
   @ApiOperation({ summary: "Listar turnos del negocio actual" })
   @ApiOkResponse({ type: [AppointmentResponse], description: "Lista de turnos." })
   @ApiQuery({ name: "clientId", required: false, description: "Filtrar por ID de cliente" })
@@ -27,6 +30,7 @@ export class AppointmentsController {
   }
 
   @Get(":id")
+  @Roles("owner", "admin")
   @ApiOperation({ summary: "Obtener un turno por ID" })
   @ApiOkResponse({ type: AppointmentResponse, description: "Turno encontrado." })
   @ApiUnauthorizedResponse({ description: "Token requerido." })
@@ -36,6 +40,7 @@ export class AppointmentsController {
   }
 
   @Post()
+  @Roles("owner", "admin")
   @ApiOperation({ summary: "Crear un nuevo turno" })
   @ApiOkResponse({ type: AppointmentResponse, description: "Turno creado." })
   @ApiUnauthorizedResponse({ description: "Token requerido." })
@@ -48,6 +53,7 @@ export class AppointmentsController {
   }
 
   @Put(":id")
+  @Roles("owner", "admin")
   @ApiOperation({ summary: "Actualizar un turno existente" })
   @ApiOkResponse({ type: AppointmentResponse, description: "Turno actualizado." })
   @ApiUnauthorizedResponse({ description: "Token requerido." })
@@ -61,6 +67,7 @@ export class AppointmentsController {
   }
 
   @Delete(":id")
+  @Roles("owner", "admin")
   @ApiOperation({ summary: "Eliminar un turno" })
   @ApiOkResponse({ description: "Turno eliminado." })
   @ApiUnauthorizedResponse({ description: "Token requerido." })

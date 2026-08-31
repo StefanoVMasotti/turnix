@@ -206,5 +206,6 @@ model Appointment {
   service         Service           @relation(fields: [serviceId], references: [id])
 
   @@index([employeeId, appointmentDate])
+  @@unique([employeeId, appointmentDate, startTime], name: "unique_employee_slot")
   @@map("appointments")
 }
