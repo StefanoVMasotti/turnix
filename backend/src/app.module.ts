@@ -1,5 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { APP_GUARD } from "@nestjs/core";
 import { AppConfig } from "./config/app.config";
 import { SupabaseModule } from "./common/supabase.module";
 import { PrismaModule } from "./database/prisma/prisma.module";
@@ -22,6 +24,11 @@ import { UsersModule } from "./modules/users/users.module";
     ConfigModule.forRoot({
       isGlobal: true
     }),
+    ThrottlerModule.forRoot([{
+      name: "default",
+      ttl: 60000,
+      limit: 20
+    }]),
     PrismaModule,
     SupabaseModule,
     HealthModule,
@@ -38,7 +45,10 @@ import { UsersModule } from "./modules/users/users.module";
     AppointmentsModule,
     PublicModule
   ],
-  providers: [AppConfig],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    AppConfig
+  ],
   exports: [AppConfig]
 })
 export class AppModule {}

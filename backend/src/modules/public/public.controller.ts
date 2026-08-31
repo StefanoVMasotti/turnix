@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -27,6 +28,7 @@ export class PublicController {
   }
 
   @Get(":slug/availability")
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({
     summary: "Disponibilidad de un servicio",
     description:
@@ -47,6 +49,7 @@ export class PublicController {
   }
 
   @Post(":slug/appointments")
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: "Crear un turno desde la reserva pública" })
   @ApiCreatedResponse({ description: "Turno creado." })
   @ApiBadRequestResponse({ description: "Datos inválidos o servicio no disponible." })
