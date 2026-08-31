@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma/prisma.service";
 import { PublicClientDto } from "./dto/create-public-appointment.dto";
 
@@ -130,8 +130,23 @@ export class PublicRepository {
     });
   }
 
-  createAppointment(data: CreateAppointmentData) {
-    return this.prisma.appointment.create({ data });
+  async createAppointment(data: CreateAppointmentData) {
+    try {
+      return await this.prisma.appointment.create({ data });
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code: string }).code === "P2002" &&
+        "meta" in error &&
+        typeof (error as { meta?: { target?: string[] } }).meta?.target?.includes === "function" &&
+        (error as { meta: { target: string[] } }).meta.target.includes("employee_id")
+      ) {
+        throw new ConflictException("El horario ya fue reservado por otro cliente");
+      }
+      throw error;
+    }
   }
 
   findAppointmentById(id: string) {

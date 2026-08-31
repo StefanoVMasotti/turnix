@@ -11,7 +11,9 @@
     "prisma:seed": "prisma db seed",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/main.js",
+    "test": "jest",
+    "test:cov": "jest --coverage"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -22,6 +24,7 @@
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^6.0.0",
     "@supabase/supabase-js": "^2.112.4",
     "class-transformer": "^0.5.1",
@@ -35,11 +38,16 @@
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
     "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
+    "@types/supertest": "^7.2.1",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
+    "jest": "^30.5.0",
     "prettier": "^3.0.0",
     "prisma": "^6.0.0",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.12",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.0.0"
   }
