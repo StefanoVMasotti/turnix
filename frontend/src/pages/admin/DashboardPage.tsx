@@ -1,9 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Users, UserCog, Wrench, CalendarDays } from "lucide-react";
+import { CalendarDays, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getHealth } from "../../services/health.service";
-import { useClients } from "../../hooks/useClients";
-import { useEmployees } from "../../hooks/useEmployees";
-import { useServices } from "../../hooks/useServices";
 import { useAppointments } from "../../hooks/useAppointments";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -17,6 +15,17 @@ function formatDate(dateStr: string) {
   const day = String(d.getUTCDate()).padStart(2, "0");
   const month = String(d.getUTCMonth() + 1).padStart(2, "0");
   return `${day}/${month}`;
+}
+
+function toLocalDateStr(date: Date) {
+  const y = String(date.getFullYear());
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function toLocalDateStrFromUTC(dateStr: string) {
+  return dateStr.substring(0, 10);
 }
 
 const STATUS_VARIANTS: Record<string, "success" | "danger" | "warning" | "info"> = {
@@ -35,28 +44,48 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function DashboardPage() {
   useQuery({ queryKey: ["health"], queryFn: getHealth, retry: false });
-  const { data: clients } = useClients();
-  const { data: employees } = useEmployees();
-  const { data: services } = useServices();
   const { data: appointments } = useAppointments();
 
   const now = new Date();
-  const todayStr = `${String(now.getUTCFullYear())}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  const todayStr = toLocalDateStr(now);
+
+  const todayAppointments = appointments?.filter(
+    (a) => toLocalDateStrFromUTC(a.appointmentDate) === todayStr
+  ) ?? [];
+
+  const todayStats = {
+    total: todayAppointments.length,
+    scheduled: todayAppointments.filter((a) => a.status === "scheduled").length,
+    completed: todayAppointments.filter((a) => a.status === "completed").length,
+    cancelled: todayAppointments.filter((a) => a.status === "cancelled" || a.status === "no_show").length,
+  };
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = toLocalDateStr(d);
+    const dayLabel = d.toLocaleDateString("es-ES", { weekday: "short", day: "numeric" });
+    const dayAppointments = appointments?.filter(
+      (a) => toLocalDateStrFromUTC(a.appointmentDate) === dateStr
+    ) ?? [];
+    return {
+      day: dayLabel,
+      completados: dayAppointments.filter((a) => a.status === "completed").length,
+      cancelados: dayAppointments.filter((a) => a.status === "cancelled" || a.status === "no_show").length,
+      programados: dayAppointments.filter((a) => a.status === "scheduled").length,
+    };
+  });
 
   const upcoming = appointments
-    ?.filter((a) => a.status === "scheduled" && a.appointmentDate.substring(0, 10) >= todayStr)
+    ?.filter((a) => a.status === "scheduled" && toLocalDateStrFromUTC(a.appointmentDate) >= todayStr)
     .sort((a, b) => a.appointmentDate.localeCompare(b.appointmentDate) || a.startTime.localeCompare(b.startTime))
     .slice(0, 5);
 
-  const todayCount = appointments?.filter(
-    (a) => a.appointmentDate.substring(0, 10) === todayStr && a.status === "scheduled"
-  ).length ?? 0;
-
-  const stats = [
-    { label: "Clientes", value: clients?.length ?? 0, icon: UserCog },
-    { label: "Empleados", value: employees?.filter((e) => e.active).length ?? 0, icon: Users },
-    { label: "Servicios", value: services?.filter((s) => s.active).length ?? 0, icon: Wrench },
-    { label: "Turnos hoy", value: todayCount, icon: CalendarDays }
+  const statCards = [
+    { label: "Turnos hoy", value: todayStats.total, icon: CalendarDays, color: "text-blue-400" },
+    { label: "Pendientes", value: todayStats.scheduled, icon: Clock, color: "text-yellow-400" },
+    { label: "Completados", value: todayStats.completed, icon: CheckCircle2, color: "text-green-400" },
+    { label: "Cancelados", value: todayStats.cancelled, icon: XCircle, color: "text-red-400" },
   ];
 
   return (
@@ -65,11 +94,11 @@ export function DashboardPage() {
       <h1 className="mt-2 text-3xl font-bold text-slate-50">Dashboard</h1>
 
       <div className="grid gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
+        {statCards.map((s) => (
           <Card key={s.label}>
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-primary/10 p-2">
-                <s.icon size={20} className="text-primary" />
+                <s.icon size={20} className={s.color} />
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-100">{s.value}</p>
@@ -78,6 +107,29 @@ export function DashboardPage() {
             </div>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-slate-100 mb-4">Turnos de los últimos 7 días</h2>
+        <Card>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={last7Days} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="day" tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
+                  labelStyle={{ color: "#e2e8f0" }}
+                  itemStyle={{ color: "#cbd5e1" }}
+                />
+                <Bar dataKey="completados" name="Completados" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="programados" name="Programados" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cancelados" name="Cancelados" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
       </div>
 
       <div className="mt-8">
