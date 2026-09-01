@@ -17,7 +17,6 @@ import {
 } from "../../common/utils/time";
 
 const DEFAULT_TIMEZONE = "America/Buenos_Aires";
-const DEFAULT_BUFFER = 0;
 const DEFAULT_MAX_BOOKING_DAYS = 30;
 
 interface ScheduleEntry {
@@ -86,7 +85,6 @@ export class PublicService {
 
     const settings = business.settings;
     const duration = service.durationMinutes;
-    const buffer = settings?.bufferMinutes ?? DEFAULT_BUFFER;
     const maxBookingDays = settings?.maxBookingDays ?? DEFAULT_MAX_BOOKING_DAYS;
     const timezone = settings?.timezone ?? DEFAULT_TIMEZONE;
 
@@ -104,7 +102,6 @@ export class PublicService {
         employeeIds,
         target,
         duration,
-        buffer,
         timezone
       );
 
@@ -124,7 +121,6 @@ export class PublicService {
       today,
       windowEnd,
       duration,
-      buffer,
       timezone
     );
 
@@ -159,7 +155,6 @@ export class PublicService {
 
     const settings = business.settings;
     const duration = employeeService.service.durationMinutes;
-    const buffer = settings?.bufferMinutes ?? DEFAULT_BUFFER;
     const maxBookingDays = settings?.maxBookingDays ?? DEFAULT_MAX_BOOKING_DAYS;
     const timezone = settings?.timezone ?? DEFAULT_TIMEZONE;
 
@@ -172,7 +167,6 @@ export class PublicService {
       [dto.employeeId],
       target,
       duration,
-      buffer,
       timezone
     );
 
@@ -264,7 +258,6 @@ export class PublicService {
     employeeIds: string[],
     date: Date,
     duration: number,
-    buffer: number,
     timezone: string
   ): Promise<number[]> {
     const availabilityMap = await this.buildAvailabilityMap(
@@ -272,7 +265,6 @@ export class PublicService {
       date,
       date,
       duration,
-      buffer,
       timezone
     );
 
@@ -284,7 +276,6 @@ export class PublicService {
     windowStart: Date,
     windowEnd: Date,
     duration: number,
-    buffer: number,
     timezone: string
   ): Promise<Map<string, number[]>> {
     const [schedules, timeOffs, blocks, appointments] = await Promise.all([
@@ -368,7 +359,7 @@ export class PublicService {
         );
 
         for (const schedule of scheduleEntries) {
-          for (let start = schedule.start; start + duration <= schedule.end; start += duration + buffer) {
+          for (let start = schedule.start; start + duration <= schedule.end; start += duration) {
             const end = start + duration;
 
             if (dateStr === todayStr && start < nowMinutes) {
@@ -382,7 +373,7 @@ export class PublicService {
             if (
               dayAppointments.some(
                 (appointment) =>
-                  appointment.start - buffer < end && appointment.end + buffer > start
+                  appointment.start < end && appointment.end > start
               )
             ) {
               continue;

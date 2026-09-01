@@ -52,7 +52,6 @@ model BusinessSettings {
   businessId          String   @unique @map("business_id") @db.Uuid
   timezone            String   @default("America/Buenos_Aires") @db.VarChar(100)
   currency            String   @default("ARS") @db.Char(3)
-  bufferMinutes       Int      @default(0) @map("buffer_minutes")
   maxBookingDays      Int      @default(30) @map("max_booking_days")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
@@ -139,6 +138,7 @@ model EmployeeSchedule {
   updatedAt  DateTime @updatedAt @map("updated_at")
   employee   Employee @relation(fields: [employeeId], references: [id])
 
+  @@index([employeeId, dayOfWeek], name: "idx_schedule_employee_day")
   @@map("employee_schedules")
 }
 
@@ -152,6 +152,7 @@ model EmployeeTimeOff {
   updatedAt  DateTime @updatedAt @map("updated_at")
   employee   Employee @relation(fields: [employeeId], references: [id])
 
+  @@index([employeeId, startDate, endDate], name: "idx_timeoff_employee_range")
   @@map("employee_time_off")
 }
 
@@ -166,6 +167,7 @@ model EmployeeBlock {
   updatedAt  DateTime @updatedAt @map("updated_at")
   employee   Employee @relation(fields: [employeeId], references: [id])
 
+  @@index([employeeId, blockDate], name: "idx_block_employee_date")
   @@map("employee_blocks")
 }
 
@@ -182,7 +184,7 @@ model Client {
   business     Business      @relation(fields: [businessId], references: [id])
   appointments Appointment[]
 
-  @@index([phone])
+  @@unique([businessId, phone], name: "unique_business_client_phone")
   @@map("clients")
 }
 
@@ -207,5 +209,7 @@ model Appointment {
 
   @@index([employeeId, appointmentDate])
   @@unique([employeeId, appointmentDate, startTime], name: "unique_employee_slot")
+  @@index([businessId, appointmentDate], name: "idx_appointment_business_date")
+  @@index([businessId, status, appointmentDate], name: "idx_appointment_business_status_date")
   @@map("appointments")
 }
