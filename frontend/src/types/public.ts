@@ -10,7 +10,6 @@ export interface PublicBusiness {
 export interface PublicSettings {
   timezone: string;
   currency: string;
-  bufferMinutes: number;
   maxBookingDays: number;
 }
 

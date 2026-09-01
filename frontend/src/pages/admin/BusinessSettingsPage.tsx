@@ -20,7 +20,6 @@ export function BusinessSettingsPage() {
   });
 
   const [settingsForm, setSettingsForm] = useState({
-    bufferMinutes: 0,
     maxBookingDays: 30,
     timezone: "America/Buenos_Aires",
     currency: "ARS"
@@ -41,7 +40,6 @@ export function BusinessSettingsPage() {
   useEffect(() => {
     if (settings) {
       setSettingsForm({
-        bufferMinutes: settings.bufferMinutes,
         maxBookingDays: settings.maxBookingDays,
         timezone: settings.timezone,
         currency: settings.currency
@@ -107,12 +105,6 @@ export function BusinessSettingsPage() {
 
         <Card title="Configuración de Citas">
           <form onSubmit={handleSettingsSubmit} className="space-y-4">
-            <Input
-              label="Pausa entre turnos (min)"
-              type="number"
-              value={settingsForm.bufferMinutes}
-              onChange={(e) => { setSettingsForm({ ...settingsForm, bufferMinutes: Number(e.target.value) }); }}
-            />
             <Input
               label="Máximo días de anticipación"
               type="number"

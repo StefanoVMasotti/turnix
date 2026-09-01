@@ -54,7 +54,6 @@ async function main() {
     update: {
       timezone: "America/Buenos_Aires",
       currency: "ARS",
-      bufferMinutes: 0,
       maxBookingDays: 30,
     },
     create: {
@@ -62,7 +61,6 @@ async function main() {
       businessId,
       timezone: "America/Buenos_Aires",
       currency: "ARS",
-      bufferMinutes: 0,
       maxBookingDays: 30,
     },
   });

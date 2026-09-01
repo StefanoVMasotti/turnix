@@ -15,7 +15,6 @@ export interface BusinessSettings {
   businessId: string;
   timezone: string;
   currency: string;
-  bufferMinutes: number;
   maxBookingDays: number;
   createdAt: string;
   updatedAt: string;

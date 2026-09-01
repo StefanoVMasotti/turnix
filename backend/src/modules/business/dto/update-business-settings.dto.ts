@@ -14,13 +14,6 @@ export class UpdateBusinessSettingsDto {
   @Length(3, 3)
   currency?: string;
 
-  @ApiPropertyOptional({ example: 0, minimum: 0, maximum: 120 })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(120)
-  bufferMinutes?: number;
-
   @ApiPropertyOptional({ example: 30, minimum: 1, maximum: 365 })
   @IsOptional()
   @IsInt()

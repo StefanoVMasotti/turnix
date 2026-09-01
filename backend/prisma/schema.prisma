@@ -52,7 +52,6 @@ model BusinessSettings {
   businessId          String   @unique @map("business_id") @db.Uuid
   timezone            String   @default("America/Buenos_Aires") @db.VarChar(100)
   currency            String   @default("ARS") @db.Char(3)
-  bufferMinutes       Int      @default(0) @map("buffer_minutes")
   maxBookingDays      Int      @default(30) @map("max_booking_days")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
