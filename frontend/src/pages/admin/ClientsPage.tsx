@@ -44,7 +44,11 @@ export function ClientsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [historyClientId, setHistoryClientId] = useState<string | null>(null);
-  const { data: historyAppointments, isLoading: historyLoading } = useAppointments(historyClientId ?? undefined);
+  const { data: historyAppointmentsData, isLoading: historyLoading } = useAppointments({
+    clientId: historyClientId ?? undefined,
+    limit: 100
+  });
+  const historyAppointments = historyAppointmentsData?.data ?? [];
 
   const [formData, setFormData] = useState({
     firstName: "",

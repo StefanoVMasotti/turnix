@@ -40,3 +40,18 @@ export class AppointmentResponse {
   @ApiProperty({ example: "2026-07-13T11:00:00.000Z" })
   updatedAt!: Date;
 }
+
+export class PaginatedAppointmentsResponse {
+  @ApiProperty({ type: [AppointmentResponse] })
+  data!: AppointmentResponse[];
+
+  @ApiProperty()
+  meta!: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}

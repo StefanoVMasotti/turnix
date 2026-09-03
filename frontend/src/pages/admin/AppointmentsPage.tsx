@@ -12,7 +12,7 @@ import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Spinner } from "../../components/ui/Spinner";
 import { formatDate, formatTime, toLocalDateStr } from "../../utils/date";
-import type { Appointment } from "../../types/appointment";
+import type { Appointment, AppointmentStatus } from "../../types/appointment";
 
 const STATUS_LABELS: Record<string, string> = {
   scheduled: "Programado",
@@ -44,7 +44,19 @@ const STATUS_CONFIRM_MESSAGES: Record<string, { message: string; action: string 
 };
 
 export function AppointmentsPage() {
-  const { data: appointments, isLoading } = useAppointments();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
+
+  const { data: appointmentsData, isLoading } = useAppointments({
+    page,
+    limit,
+    status: (filterStatus as AppointmentStatus) || undefined,
+    dateFrom: filterDateFrom || undefined,
+    dateTo: filterDateTo || undefined
+  });
   const { data: services } = useServices();
   const { data: employees } = useEmployees();
   const { data: clients } = useClients();
@@ -53,8 +65,6 @@ export function AppointmentsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
-  const [filterDate, setFilterDate] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
   const [statusConfirm, setStatusConfirm] = useState<{
     id: string;
     status: "completed" | "cancelled" | "no_show";
@@ -122,13 +132,10 @@ export function AppointmentsPage() {
     );
   }
 
-  const filtered = appointments?.filter((apt) => {
-    if (filterDate && toLocalDateStr(apt.appointmentDate) !== filterDate) return false;
-    if (filterStatus && apt.status !== filterStatus) return false;
-    return true;
-  });
-
   if (isLoading) return <div className="flex flex-col items-center gap-3 py-16"><Spinner /><p className="text-slate-400 text-sm">Cargando turnos...</p></div>;
+
+  const appointments = appointmentsData?.data ?? [];
+  const meta = appointmentsData?.meta;
 
   return (
     <div>
@@ -142,16 +149,22 @@ export function AppointmentsPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <Input
-          label="Fecha"
+          label="Fecha desde"
           type="date"
-          value={filterDate}
-          onChange={(e) => { setFilterDate(e.target.value); }}
+          value={filterDateFrom}
+          onChange={(e) => { setFilterDateFrom(e.target.value); setPage(1); }}
+        />
+        <Input
+          label="Fecha hasta"
+          type="date"
+          value={filterDateTo}
+          onChange={(e) => { setFilterDateTo(e.target.value); setPage(1); }}
         />
         <div className="flex flex-col">
           <label className="text-xs font-medium text-slate-400 mb-1">Estado</label>
           <select
             value={filterStatus}
-            onChange={(e) => { setFilterStatus(e.target.value); }}
+            onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
             className="px-3 py-2 bg-card border border-border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <option value="">Todos</option>
@@ -161,13 +174,25 @@ export function AppointmentsPage() {
             <option value="no_show">No asistió</option>
           </select>
         </div>
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-slate-400 mb-1">Por página</label>
+          <select
+            value={limit}
+            onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+            className="px-3 py-2 bg-card border border-border rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {filtered?.length === 0 && (
+        {appointments.length === 0 && (
           <p className="text-slate-500 text-sm">No hay turnos para los filtros seleccionados.</p>
         )}
-        {filtered?.map((apt) => (
+        {appointments.map((apt) => (
           <Card key={apt.id}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 flex-wrap sm:flex-nowrap">
@@ -209,6 +234,32 @@ export function AppointmentsPage() {
           </Card>
         ))}
       </div>
+
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6">
+          <div className="text-sm text-slate-400">
+            Página {meta.page} de {meta.totalPages} ({meta.total} turnos)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={!meta.hasPrev}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={!meta.hasNext}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Modal
         isOpen={isModalOpen}

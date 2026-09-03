@@ -1,3 +1,5 @@
+export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+
 export interface Appointment {
   id: string;
   businessId: string;
@@ -7,7 +9,7 @@ export interface Appointment {
   appointmentDate: string;
   startTime: string;
   endTime: string;
-  status: "scheduled" | "completed" | "cancelled" | "no_show";
+  status: AppointmentStatus;
   bookingSource?: "web" | "whatsapp" | "phone" | "walk_in";
   notes: string | null;
   createdAt: string;
