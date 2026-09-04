@@ -36,6 +36,12 @@ export class SupabaseService implements OnModuleInit {
   }
 
   async verifyToken(token: string): Promise<TokenPayload> {
+    // Validar exp LOCALMENTE antes de llamar a Supabase
+    const payload = this.decodeJwt(token);
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      throw new Error("Token expirado");
+    }
+    
     const { data, error } = await this.client.auth.getUser(token);
 
     if (error || !data.user) {
@@ -47,9 +53,20 @@ export class SupabaseService implements OnModuleInit {
       email: data.user.email ?? "",
       role: data.user.role ?? "authenticated",
       aud: "authenticated",
-      exp: 0,
-      iat: 0
+      exp: payload.exp,
+      iat: payload.iat
     };
+  }
+
+  decodeJwt(token: string): TokenPayload {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const json = Buffer.from(base64, 'base64').toString();
+      return JSON.parse(json);
+    } catch {
+      throw new Error("Token malformado");
+    }
   }
 
   async signIn(email: string, password: string) {

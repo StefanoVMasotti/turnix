@@ -10,6 +10,10 @@ interface AuthRequest extends Request {
 
 @Injectable()
 export class JwtGuard implements CanActivate {
+  private userCache = new Map<string, { user: AuthUser; expiry: number }>();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 min
+  private readonly MAX_CACHE_SIZE = 1000;
+
   constructor(
     private readonly supabase: SupabaseService,
     private readonly prisma: PrismaService
@@ -23,7 +27,15 @@ export class JwtGuard implements CanActivate {
       throw new UnauthorizedException("Token de autenticación requerido.");
     }
 
+    // 1. CHECK CACHE
+    const cached = this.userCache.get(token);
+    if (cached && cached.expiry > Date.now()) {
+      request.user = cached.user;
+      return true;
+    }
+
     try {
+      // 2. VALIDAR TOKEN (incluye validación exp local en supabase.verifyToken)
       const supabaseUser = await this.supabase.verifyToken(token);
 
       const user = await this.prisma.user.findUnique({
@@ -34,7 +46,7 @@ export class JwtGuard implements CanActivate {
         throw new UnauthorizedException("Usuario no encontrado o desactivado.");
       }
 
-      request.user = {
+      const authUser: AuthUser = {
         id: user.id,
         authUserId: user.authUserId,
         email: user.email,
@@ -43,12 +55,35 @@ export class JwtGuard implements CanActivate {
         businessId: user.businessId
       };
 
+      request.user = authUser;
+
+      // 3. CACHEAR
+      this.userCache.set(token, { user: authUser, expiry: Date.now() + this.CACHE_TTL });
+
+      // 4. CLEANUP PERIÓDICO
+      if (this.userCache.size > this.MAX_CACHE_SIZE) {
+        this.cleanupCache();
+      }
+
       return true;
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException("Token inválido o expirado.");
+      
+      const msg = error?.message || "";
+      if (msg.includes("expirado")) throw new UnauthorizedException("Token expirado");
+      if (msg.includes("malformado")) throw new UnauthorizedException("Token malformado");
+      if (msg.includes("Usuario no encontrado")) throw new UnauthorizedException("Usuario no encontrado o desactivado");
+      
+      throw new UnauthorizedException("Token inválido o error de autenticación");
+    }
+  }
+
+  private cleanupCache() {
+    const now = Date.now();
+    for (const [key, value] of this.userCache.entries()) {
+      if (value.expiry < now) this.userCache.delete(key);
     }
   }
 

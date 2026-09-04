@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import DOMPurify from "isomorphic-dompurify";
 
 export class CreateClientDto {
   @ApiProperty({ example: "Cliente", maxLength: 100 })
@@ -26,8 +28,10 @@ export class CreateClientDto {
   @MaxLength(255)
   email?: string;
 
-  @ApiPropertyOptional({ example: "Cliente frecuente" })
+  @ApiPropertyOptional({ example: "Cliente frecuente", maxLength: 255 })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @Transform(({ value }) => value ? DOMPurify.sanitize(value) : value)
   notes?: string;
 }

@@ -1,12 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as appointmentService from "../services/appointment.service";
-import type { Appointment } from "../types/appointment";
+import type { Appointment, AppointmentStatus } from "../types/appointment";
 
-export function useAppointments(clientId?: string) {
+export interface UseAppointmentsParams {
+  clientId?: string;
+  page?: number;
+  limit?: number;
+  status?: AppointmentStatus;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export function useAppointments(params?: UseAppointmentsParams) {
   return useQuery({
-    queryKey: ["appointments", clientId ?? "all"],
-    queryFn: () => appointmentService.getAppointments(clientId)
+    queryKey: ["appointments", params ?? {}],
+    queryFn: () => appointmentService.getAppointments(params)
   });
 }
 

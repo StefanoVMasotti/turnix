@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MaxLength } from "class-validator";
+import DOMPurify from "isomorphic-dompurify";
 
 export class CreateAppointmentDto {
   @ApiProperty({ example: "44444444-4444-4444-4444-444444444444" })
@@ -40,9 +42,10 @@ export class CreateAppointmentDto {
   @MaxLength(20)
   bookingSource?: string;
 
-  @ApiPropertyOptional({ example: "Cliente pidió turno temprano" })
+  @ApiPropertyOptional({ example: "Cliente pidió turno temprano", maxLength: 255 })
   @IsOptional()
   @IsString()
   @MaxLength(255)
+  @Transform(({ value }) => value ? DOMPurify.sanitize(value) : value)
   notes?: string;
 }

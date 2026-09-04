@@ -1,10 +1,29 @@
 import { api } from "./api";
 import type { Appointment, CreateAppointmentPayload } from "../types/appointment";
 
-export async function getAppointments(clientId?: string): Promise<Appointment[]> {
-  const response = await api.get<Appointment[]>("/appointments", {
-    params: clientId ? { clientId } : undefined
-  });
+export interface AppointmentsParams {
+  clientId?: string;
+  page?: number;
+  limit?: number;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface PaginatedAppointmentsResponse {
+  data: Appointment[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+export async function getAppointments(params?: AppointmentsParams): Promise<PaginatedAppointmentsResponse> {
+  const response = await api.get<PaginatedAppointmentsResponse>("/appointments", { params });
   return response.data;
 }
 

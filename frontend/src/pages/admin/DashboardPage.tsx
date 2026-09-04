@@ -44,7 +44,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function DashboardPage() {
   useQuery({ queryKey: ["health"], queryFn: getHealth, retry: false });
-  const { data: appointments } = useAppointments();
+  const { data: appointmentsData } = useAppointments({ limit: 100 });
+  const appointments = appointmentsData?.data ?? [];
 
   const now = new Date();
   const todayStr = toLocalDateStr(now);
