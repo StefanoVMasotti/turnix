@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
   IsNotEmpty,
   IsOptional,
@@ -8,6 +8,7 @@ import {
   MaxLength,
   ValidateNested
 } from "class-validator";
+import DOMPurify from "isomorphic-dompurify";
 
 export class PublicClientDto {
   @ApiProperty({ example: "Juan", maxLength: 100 })
@@ -34,9 +35,11 @@ export class PublicClientDto {
   @MaxLength(255)
   email?: string;
 
-  @ApiPropertyOptional({ example: "Cliente nuevo desde la web" })
+  @ApiPropertyOptional({ example: "Cliente nuevo desde la web", maxLength: 255 })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  @Transform(({ value }) => value ? DOMPurify.sanitize(value) : value)
   notes?: string;
 }
 

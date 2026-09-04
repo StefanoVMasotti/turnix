@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import DOMPurify from "isomorphic-dompurify";
 
 export class CreateTimeOffDto {
   @ApiProperty({ example: "33333333-3333-4333-8333-333333333333" })
@@ -21,5 +23,6 @@ export class CreateTimeOffDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
+  @Transform(({ value }) => value ? DOMPurify.sanitize(value) : value)
   reason?: string;
 }
