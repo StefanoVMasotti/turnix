@@ -13,7 +13,7 @@ export class ClientResponse {
   @ApiProperty({ example: "Demo" })
   lastName!: string;
 
-  @ApiProperty({ example: "+54 11 5555-9999" })
+  @ApiProperty({ example: "541155559999" })
   phone!: string;
 
   @ApiPropertyOptional({ example: "cliente.demo@turnix.app" })

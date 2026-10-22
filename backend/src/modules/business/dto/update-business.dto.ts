@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsNormalizedOptionalPhone } from "../../../common/decorators/phone.decorator";
 
 export class UpdateBusinessDto {
   @ApiPropertyOptional({ example: "Turnix Barbería", maxLength: 100 })
@@ -14,11 +15,11 @@ export class UpdateBusinessDto {
   @MaxLength(50)
   slug?: string;
 
-  @ApiPropertyOptional({ example: "+54 11 5555-5555", maxLength: 30 })
+  @ApiPropertyOptional({ example: "541155555555", maxLength: 15 })
   @IsOptional()
   @IsString()
-  @MaxLength(30)
-  phone?: string;
+  @IsNormalizedOptionalPhone()
+  phone?: string | null;
 
   @ApiPropertyOptional({ example: "info@turnix.app", maxLength: 255 })
   @IsOptional()

@@ -5,9 +5,11 @@ import { useAppointments } from "../../hooks/useAppointments";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { PhoneInput } from "../../components/ui/PhoneInput";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
 import { Spinner } from "../../components/ui/Spinner";
+import { formatPhoneDisplay } from "../../utils/phone";
 import type { Client } from "../../types/client";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -111,7 +113,7 @@ export function ClientsPage() {
               <p className="text-sm text-slate-400 mb-1">{client.email}</p>
             )}
             {client.phone && (
-              <p className="text-sm text-slate-400 mb-4">{client.phone}</p>
+              <p className="text-sm text-slate-400 mb-4">{formatPhoneDisplay(client.phone)}</p>
             )}
             <div className="flex gap-2">
               <Button variant="secondary" size="sm" onClick={() => { openEditModal(client); }}>
@@ -149,10 +151,11 @@ export function ClientsPage() {
             value={formData.email}
             onChange={(e) => { setFormData({ ...formData, email: e.target.value }); }}
           />
-          <Input
+          <PhoneInput
             label="Teléfono"
             value={formData.phone}
-            onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); }}
+            onChange={(phone) => { setFormData({ ...formData, phone }); }}
+            required
           />
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>

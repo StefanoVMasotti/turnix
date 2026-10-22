@@ -59,7 +59,7 @@ describe("Public Controller - Rate Limiting", () => {
       employeeId: "33333333-3333-3333-3333-333333333333",
       appointmentDate: "2026-09-15",
       startTime: "09:00:00",
-      client: { firstName: "Test", lastName: "User", phone: "+5491100000001" }
+      client: { firstName: "Test", lastName: "User", phone: "5491100000001" }
     };
 
     it("debería permitir las primeras 5 requests (201)", async () => {
