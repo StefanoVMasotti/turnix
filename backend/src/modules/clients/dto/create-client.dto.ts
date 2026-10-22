@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import DOMPurify from "isomorphic-dompurify";
+import { IsNormalizedPhone } from "../../../common/decorators/phone.decorator";
 
 export class CreateClientDto {
   @ApiProperty({ example: "Cliente", maxLength: 100 })
@@ -16,10 +17,10 @@ export class CreateClientDto {
   @MaxLength(100)
   lastName!: string;
 
-  @ApiProperty({ example: "+54 11 5555-9999", maxLength: 30 })
+  @ApiProperty({ example: "541155555555", maxLength: 15 })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(30)
+  @IsNormalizedPhone()
   phone!: string;
 
   @ApiPropertyOptional({ example: "cliente.demo@turnix.app", maxLength: 255 })

@@ -4,10 +4,12 @@ import { useEmployees, useCreateEmployee, useUpdateEmployee, useToggleEmployeeAc
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { PhoneInput } from "../../components/ui/PhoneInput";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Spinner } from "../../components/ui/Spinner";
+import { formatPhoneDisplay } from "../../utils/phone";
 import type { Employee } from "../../types/employee";
 
 export function EmployeesPage() {
@@ -92,7 +94,7 @@ export function EmployeesPage() {
               <p className="text-sm text-slate-400 mb-1">{employee.email}</p>
             )}
             {employee.phone && (
-              <p className="text-sm text-slate-400 mb-4">{employee.phone}</p>
+              <p className="text-sm text-slate-400 mb-4">{formatPhoneDisplay(employee.phone)}</p>
             )}
             <div className="flex gap-2">
               <Button variant="secondary" size="sm" onClick={() => { openEditModal(employee); }}>
@@ -148,10 +150,10 @@ export function EmployeesPage() {
             value={formData.email}
             onChange={(e) => { setFormData({ ...formData, email: e.target.value }); }}
           />
-          <Input
+          <PhoneInput
             label="Teléfono"
             value={formData.phone}
-            onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); }}
+            onChange={(phone) => { setFormData({ ...formData, phone }); }}
           />
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" type="button" onClick={() => { setIsModalOpen(false); }}>

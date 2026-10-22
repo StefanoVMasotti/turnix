@@ -4,6 +4,9 @@ import { useAppointments, useCreateAppointment, useUpdateAppointment } from "../
 import { useServices } from "../../hooks/useServices";
 import { useEmployees } from "../../hooks/useEmployees";
 import { useClients } from "../../hooks/useClients";
+import { useBusiness } from "../../hooks/useBusiness";
+import { WhatsAppIcon } from "../../components/icons/WhatsAppIcon";
+import { buildWhatsappMessage, buildWhatsappUrl, phoneHasDigits } from "../../utils/whatsapp";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -60,6 +63,7 @@ export function AppointmentsPage() {
   const { data: services } = useServices();
   const { data: employees } = useEmployees();
   const { data: clients } = useClients();
+  const { data: business } = useBusiness();
   const createAppointment = useCreateAppointment();
   const updateAppointment = useUpdateAppointment();
 
@@ -129,6 +133,39 @@ export function AppointmentsPage() {
     updateAppointment.mutate(
       { id: statusConfirm.id, data: { status: statusConfirm.status } },
       { onSettled: () => { setStatusConfirm(null); } }
+    );
+  }
+
+  function whatsappButton(apt: Appointment) {
+    const phone = apt.client?.phone ?? "";
+    const base =
+      "inline-flex items-center justify-center rounded-[10px] px-3 py-2 text-sm min-h-[36px] text-white transition-colors";
+
+    if (!phoneHasDigits(phone)) {
+      return (
+        <button
+          type="button"
+          disabled
+          title="Este cliente no tiene teléfono"
+          className={`${base} bg-slate-600 opacity-50 cursor-not-allowed`}
+        >
+          <WhatsAppIcon size={16} />
+        </button>
+      );
+    }
+
+    const url = buildWhatsappUrl(phone, buildWhatsappMessage(apt, business?.name));
+
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Enviar WhatsApp al cliente"
+        className={`${base} bg-[#25D366] hover:bg-[#1da851]`}
+      >
+        <WhatsAppIcon size={16} />
+      </a>
     );
   }
 
@@ -216,6 +253,7 @@ export function AppointmentsPage() {
                 </Badge>
               </div>
               <div className="flex gap-2 sm:ml-4 sm:shrink-0 justify-end">
+                {whatsappButton(apt)}
                 <Button variant="secondary" size="sm" onClick={() => { openEditModal(apt); }}>
                   <Pencil size={14} />
                 </Button>

@@ -3,6 +3,7 @@ import { useBusiness, useUpdateBusiness, useBusinessSettings, useUpdateBusinessS
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { PhoneInput } from "../../components/ui/PhoneInput";
 import { Spinner } from "../../components/ui/Spinner";
 
 export function BusinessSettingsPage() {
@@ -74,10 +75,10 @@ export function BusinessSettingsPage() {
               onChange={(e) => { setBusinessForm({ ...businessForm, name: e.target.value }); }}
               required
             />
-            <Input
+            <PhoneInput
               label="Teléfono"
               value={businessForm.phone}
-              onChange={(e) => { setBusinessForm({ ...businessForm, phone: e.target.value }); }}
+              onChange={(phone) => { setBusinessForm({ ...businessForm, phone }); }}
             />
             <Input
               label="Slug (URL pública)"

@@ -13,7 +13,7 @@ export class EmployeeResponse {
   @ApiProperty({ example: "Ruiz" })
   lastName!: string;
 
-  @ApiPropertyOptional({ example: "+54 11 5555-1111" })
+  @ApiPropertyOptional({ example: "541155551111" })
   phone!: string | null;
 
   @ApiPropertyOptional({ example: "alex@turnix.app" })
