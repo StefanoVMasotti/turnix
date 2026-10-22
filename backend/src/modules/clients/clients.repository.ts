@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma/prisma.service";
 import { CreateClientDto } from "./dto/create-client.dto";
 import { UpdateClientDto } from "./dto/update-client.dto";
@@ -21,16 +21,28 @@ export class ClientsRepository {
   }
 
   async create(businessId: string, data: CreateClientDto) {
-    return this.prisma.client.create({
-      data: {
-        businessId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        email: data.email,
-        notes: data.notes
+    try {
+      return await this.prisma.client.create({
+        data: {
+          businessId,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          email: data.email,
+          notes: data.notes
+        }
+      });
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code: string }).code === "P2002"
+      ) {
+        throw new ConflictException("Ya existe un cliente con ese teléfono en este negocio.");
       }
-    });
+      throw error;
+    }
   }
 
   async update(id: string, data: UpdateClientDto) {

@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, ChevronLeft } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { PhoneInput } from "../../components/ui/PhoneInput";
 import { Modal } from "../../components/ui/Modal";
 import { Spinner } from "../../components/ui/Spinner";
 import { ServiceCard } from "../../components/booking/ServiceCard";
@@ -18,6 +19,7 @@ import {
 } from "../../hooks/usePublicBooking";
 import type { PublicAppointment, TimeSlot } from "../../types/public";
 import { formatDate, formatTime, weekdayLabel } from "../../utils/date";
+import { formatPhoneDisplay, isValidPhoneDigits } from "../../utils/phone";
 
 export function PublicBookingPage() {
   const { slug = "" } = useParams<{ slug: string }>();
@@ -94,6 +96,11 @@ export function PublicBookingPage() {
 
     if (!form.firstName.trim() || !form.lastName.trim() || !form.phone.trim()) {
       setFormError("Completá nombre, apellido y teléfono.");
+      return;
+    }
+
+    if (!isValidPhoneDigits(form.phone)) {
+      setFormError("Ingresá un teléfono válido con código de país.");
       return;
     }
 
@@ -357,11 +364,11 @@ export function PublicBookingPage() {
                 }}
                 required
               />
-              <Input
+              <PhoneInput
                 label="Teléfono"
                 value={form.phone}
-                onChange={(e) => {
-                  setForm({ ...form, phone: e.target.value });
+                onChange={(phone) => {
+                  setForm({ ...form, phone });
                 }}
                 required
               />
@@ -431,7 +438,7 @@ export function PublicBookingPage() {
                 {form.firstName} {form.lastName}
               </p>
               <p className="text-slate-400">
-                {form.phone}
+                {formatPhoneDisplay(form.phone)}
                 {form.email.trim() ? ` · ${form.email.trim()}` : ""}
               </p>
             </div>

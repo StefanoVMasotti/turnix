@@ -10,7 +10,7 @@ export class PublicBusinessEntity {
   @ApiProperty({ example: "turnix-demo" })
   slug!: string;
 
-  @ApiProperty({ example: "+54 11 5555-5555", nullable: true })
+  @ApiProperty({ example: "541155555555", nullable: true })
   phone!: string | null;
 
   @ApiProperty({ example: "demo@turnix.app", nullable: true })

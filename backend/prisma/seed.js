@@ -35,7 +35,7 @@ async function main() {
     update: {
       name: "Turnix Demo",
       slug: "turnix-demo",
-      phone: "+54 11 5555-5555",
+      phone: "541155555555",
       email: "demo@turnix.app",
       address: "Av. Corrientes 1234",
     },
@@ -43,7 +43,7 @@ async function main() {
       id: businessId,
       name: "Turnix Demo",
       slug: "turnix-demo",
-      phone: "+54 11 5555-5555",
+      phone: "541155555555",
       email: "demo@turnix.app",
       address: "Av. Corrientes 1234",
     },
@@ -122,7 +122,7 @@ async function main() {
     update: {
       firstName: "Alex",
       lastName: "Ruiz",
-      phone: "+54 11 5555-1111",
+      phone: "541155551111",
       email: "alex@turnix.app",
     },
     create: {
@@ -130,7 +130,7 @@ async function main() {
       businessId,
       firstName: "Alex",
       lastName: "Ruiz",
-      phone: "+54 11 5555-1111",
+      phone: "541155551111",
       email: "alex@turnix.app",
     },
   });
@@ -140,7 +140,7 @@ async function main() {
     update: {
       firstName: "Sofía",
       lastName: "Molina",
-      phone: "+54 11 5555-2222",
+      phone: "541155552222",
       email: "sofia@turnix.app",
     },
     create: {
@@ -148,7 +148,7 @@ async function main() {
       businessId,
       firstName: "Sofía",
       lastName: "Molina",
-      phone: "+54 11 5555-2222",
+      phone: "541155552222",
       email: "sofia@turnix.app",
     },
   });
@@ -276,7 +276,7 @@ async function main() {
     update: {
       firstName: "Cliente",
       lastName: "Demo",
-      phone: "+54 11 5555-9999",
+      phone: "541155559999",
       email: "cliente.demo@turnix.app",
     },
     create: {
@@ -284,7 +284,7 @@ async function main() {
       businessId,
       firstName: "Cliente",
       lastName: "Demo",
-      phone: "+54 11 5555-9999",
+      phone: "541155559999",
       email: "cliente.demo@turnix.app",
     },
   });

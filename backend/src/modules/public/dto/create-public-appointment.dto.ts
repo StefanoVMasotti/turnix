@@ -9,6 +9,7 @@ import {
   ValidateNested
 } from "class-validator";
 import DOMPurify from "isomorphic-dompurify";
+import { IsNormalizedPhone } from "../../../common/decorators/phone.decorator";
 
 export class PublicClientDto {
   @ApiProperty({ example: "Juan", maxLength: 100 })
@@ -23,10 +24,10 @@ export class PublicClientDto {
   @MaxLength(100)
   lastName!: string;
 
-  @ApiProperty({ example: "+54 11 5555-1234", maxLength: 30 })
+  @ApiProperty({ example: "541155551234", maxLength: 15 })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(30)
+  @IsNormalizedPhone()
   phone!: string;
 
   @ApiPropertyOptional({ example: "juan@mail.com", maxLength: 255 })
